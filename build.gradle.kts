@@ -1,0 +1,85 @@
+import de.honoka.gradle.util.dsl.libs
+import de.honoka.gradle.util.dsl.projects
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.nio.charset.StandardCharsets
+
+plugins {
+    java
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.honoka.basic)
+}
+
+allprojects {
+    group = "de.honoka.demo.microservice"
+    version = libs.versions.p.root.get()
+}
+
+//非服务项目
+val notServiceProjects = projects()
+
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.kapt")
+    apply(plugin = "de.honoka.gradle.plugin.basic")
+
+    if(project !in notServiceProjects) {
+        apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+        apply(plugin = "org.springframework.boot")
+    }
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(17)
+    }
+
+    honoka.basic {
+        dependencies {
+            springBootBom()
+            springBootConfigProcessor()
+            kotlin()
+        }
+    }
+    
+    dependencies {
+        implementation(platform(libs.spring.cloud.bom))
+        implementation(platform(libs.spring.cloud.alibaba.bom))
+        implementation("org.springframework.boot:spring-boot-starter")
+        implementation("org.springframework.boot:spring-boot-starter-web")
+        implementation(libs.mybatis.plus)
+        implementation(libs.mybatis.plus.jsqlparser)
+        implementation(libs.honoka.spring.boot.starter)
+    }
+    
+    tasks {
+        withType<JavaCompile> {
+            options.run {
+                encoding = StandardCharsets.UTF_8.name()
+                val compilerArgs = compilerArgs as MutableCollection<String>
+                compilerArgs += listOf("-parameters")
+            }
+        }
+
+        /*
+         * 由于除了原本的compileKotlin任务外，还存在compileTestKotlin和kapt的KaptGenerateStubsTask
+         * （KotlinCompile的子类）任务需要配置，因此这里不能使用“compileKotlin {}”块。
+         */
+        withType<KotlinCompile> {
+            compilerOptions {
+                freeCompilerArgs.addAll("-Xjsr305=strict", "-Xjvm-default=all")
+            }
+        }
+
+        withType<Test> {
+            useJUnitPlatform()
+        }
+    }
+
+    kapt {
+        keepJavacAnnotationProcessors = true
+    }
+}
+
+libs.versions.d.kotlin.coroutines
