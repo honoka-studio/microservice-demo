@@ -1,14 +1,12 @@
-server:
-  port: 8081
-
 spring:
-  application:
-    name: microservice-demo-service1
-  profiles:
-    active: dev
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
+  flyway:
+    enabled: false
+    locations: classpath:flyway/sql
+    baseline-on-migrate: true
+    baseline-version: 0.0.0
+    validate-on-migrate: false
+    clean-disabled: true
+    clean-on-validation-error: false
 
 honoka:
   starter:

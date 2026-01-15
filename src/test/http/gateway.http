@@ -1,0 +1,1 @@
+GET {{prefix.gateway}}/service1/hello

@@ -7,6 +7,8 @@ gradle-build/
 !**/src/test/**/build/
 .kotlin/
 
+/files/http/http-client.private.env.json
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws

@@ -20,6 +20,9 @@ allprojects {
 //非服务项目
 val notServiceProjects = projects()
 
+//非业务服务项目
+val notBusinessServiceProjects = projects("microservice-demo-gateway")
+
 subprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -37,9 +40,9 @@ subprojects {
 
     honoka.basic {
         dependencies {
+            kotlin()
             springBootBom()
             springBootConfigProcessor()
-            kotlin()
         }
     }
     
@@ -47,7 +50,19 @@ subprojects {
         implementation(platform(libs.spring.cloud.bom))
         implementation(platform(libs.spring.cloud.alibaba.bom))
         implementation("org.springframework.boot:spring-boot-starter")
+        implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
+        implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+        implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery")
+        implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config")
+    }
+
+    //业务服务应用配置
+    dependencies {
+        if(project in notBusinessServiceProjects) return@dependencies
         implementation("org.springframework.boot:spring-boot-starter-web")
+        implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+        runtimeOnly("com.mysql:mysql-connector-j")
+        implementation("org.flywaydb:flyway-mysql")
         implementation(libs.mybatis.plus)
         implementation(libs.mybatis.plus.jsqlparser)
         implementation(libs.honoka.spring.boot.starter)

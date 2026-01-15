@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: microservice-demo-service1
+  config:
+    import:
+      - optional:file:./files/config/common.yml
+      - nacos:common.yml?refreshEnabled=true
+      - nacos:common-business.yml?refreshEnabled=true
+      - nacos:${spring.application.name}.yml?refreshEnabled=true
+  cloud:
+    nacos:
+      server-addr: ${app.nacos.server}
+      username: ${app.nacos.username}
+      password: ${app.nacos.password}
+      discovery:
+        namespace: ${app.nacos.namespace}
+      config:
+        namespace: ${app.nacos.namespace}

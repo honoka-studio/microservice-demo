@@ -23,4 +23,5 @@ plugins {
 
 rootProject.name = "microservice-demo"
 
+include("${rootProject.name}-gateway")
 include("${rootProject.name}-service1")
