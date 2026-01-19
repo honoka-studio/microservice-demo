@@ -1,1 +1,4 @@
+GET {{prefix.gateway}}/auth/.well-known/oauth-authorization-server
+
+###
 GET {{prefix.gateway}}/service1/hello

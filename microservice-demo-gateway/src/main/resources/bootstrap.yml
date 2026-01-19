@@ -18,16 +18,24 @@ spring:
         namespace: ${app.nacos.namespace}
       config:
         namespace: ${app.nacos.namespace}
+
+honoka:
+  web:
+    enabled: false
+  webflux:
+    enabled: true
+    cors:
+      enabled: true
 ---
 spring.cloud.gateway.server.webflux.routes:
   # 路由配置的名称，必须保证在本应用中唯一
-  - id: service1
+  - id: microservice-demo-auth
     # 要将请求路由到的URI（lb表示负载均衡）
-    uri: lb://microservice-demo-service1
+    uri: lb://microservice-demo-auth
     # 匹配条件，当本应用收到的请求满足条件时，将使用这个路由规则进行转发
     predicates:
       # 限定路径条件，此处为设置一个前缀匹配规则
-      - Path=/service1/**
+      - Path=/auth/**
     filters:
       # 代理时，去掉本应用所收到的URI的前几个部分
       # 如：本应用收到/prefix/hello的请求，若不设置此参数，网关将会将收到的请求
@@ -37,4 +45,16 @@ spring.cloud.gateway.server.webflux.routes:
       # 若设置StripPrefix=1，则将会把请求代理到指定微服务的/hello路径下，去掉了
       # 原本路径的前1个部分
       # （server:8080/prefix/hello → server:8081/hello）
+      - StripPrefix=1
+  - id: microservice-demo-user
+    uri: lb://microservice-demo-user
+    predicates:
+      - Path=/user/**
+    filters:
+      - StripPrefix=1
+  - id: microservice-demo-service1
+    uri: lb://microservice-demo-service1
+    predicates:
+      - Path=/service1/**
+    filters:
       - StripPrefix=1

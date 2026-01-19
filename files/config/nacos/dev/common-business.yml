@@ -1,12 +1,22 @@
 spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root123
   flyway:
-    enabled: false
+    enabled: true
     locations: classpath:flyway/sql
     baseline-on-migrate: true
     baseline-version: 0.0.0
     validate-on-migrate: false
     clean-disabled: true
     clean-on-validation-error: false
+  data:
+    redis:
+      host: vm.honoka.de
+      port: 6379
+      username: redis
+      password: redis123
 
 honoka:
   starter:
@@ -18,3 +28,9 @@ mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
+
+app:
+  datasource:
+    url:
+      prefix: jdbc:mysql://vm.honoka.de:3306/
+      suffix: ?serverTimezone=GMT%2B8

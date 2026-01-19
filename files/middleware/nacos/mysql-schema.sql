@@ -31,7 +31,7 @@ CREATE TABLE `config_info`
   COLLATE = utf8_bin COMMENT = 'config_info';
 
 /******************************************/
-/*   表名称 = config_info  since 2.5.0                */
+/*   表名称 = config_info  since 2.5.0     */
 /******************************************/
 CREATE TABLE `config_info_gray`
 (

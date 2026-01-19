@@ -1,0 +1,3 @@
+spring:
+  datasource:
+    url: ${app.datasource.url.prefix}microservice_demo_user${app.datasource.url.suffix}
