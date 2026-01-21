@@ -1,7 +1,7 @@
 package de.honoka.demo.microservice.auth.config
 
+import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWKSet
-import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
@@ -24,14 +24,11 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.context.SecurityContextHolderFilter
-import java.security.KeyPairGenerator
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
-import java.util.*
+import java.io.File
 
 @EnableWebSecurity
 @Configuration
-class SecurityConfig {
+class SecurityConfig(private val mainProperties: MainProperties) {
 
     /**
      * OAuth2的相关配置
@@ -86,9 +83,8 @@ class SecurityConfig {
     }
 
     @Bean
-    fun registeredClientRepository(jdbcTemplate: JdbcTemplate): RegisteredClientRepository = run {
+    fun registeredClientRepository(jdbcTemplate: JdbcTemplate): RegisteredClientRepository =
         JdbcRegisteredClientRepository(jdbcTemplate)
-    }
 
     //JWK相关资料：https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-key-41
     /**
@@ -96,25 +92,22 @@ class SecurityConfig {
      */
     @Bean
     fun jwkSource(): JWKSource<SecurityContext> {
-        val keyPair = KeyPairGenerator.getInstance("RSA").run {
-            initialize(2048)
-            generateKeyPair()
+        val keyString = File(mainProperties.keyPath!!).readText()
+        val ecKey = ECKey.parseFromPEMEncodedObjects(keyString).run {
+            ECKey.Builder(toECKey()).run {
+                keyID(mainProperties.keyId!!)
+                build()
+            }
         }
-        val rsaKey = RSAKey.Builder(keyPair.public as RSAPublicKey).run {
-            privateKey(keyPair.private as RSAPrivateKey)
-            keyID(UUID.randomUUID().toString())
-            build()
-        }
-        return ImmutableJWKSet(JWKSet(rsaKey))
+        return ImmutableJWKSet(JWKSet(ecKey))
     }
 
     /**
      * 配置JWT解析器
      */
     @Bean
-    fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder = run {
+    fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder =
         OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)
-    }
 
     /**
      * 配置授权服务器请求地址（与OAuth2相关的一些请求地址，默认为/oauth2/token等）

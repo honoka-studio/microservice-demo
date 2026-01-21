@@ -19,18 +19,16 @@ spring:
       password: redis123
 
 honoka:
-  starter:
-    mybatis:
-      enabled: true
+  mybatis:
+    enabled: true
+  redis:
+    enabled: true
+    key-prefix: microservice-demo
+  redisson:
+    enabled: true
 
 mybatis-plus:
   # classpath*:mapper/**/*.xml为默认值，默认扫描resources/mapper目录及其子目录下所有xml文件
   mapper-locations: classpath*:mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
-
-app:
-  datasource:
-    url:
-      prefix: jdbc:mysql://vm.honoka.de:3306/
-      suffix: ?serverTimezone=GMT%2B8

@@ -2,3 +2,9 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
+app:
+  datasource:
+    url:
+      prefix: jdbc:mysql://vm.honoka.de:3306/
+      suffix: ?serverTimezone=GMT%2B8

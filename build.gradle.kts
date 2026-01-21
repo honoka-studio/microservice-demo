@@ -51,9 +51,9 @@ subprojects {
         implementation(platform(libs.spring.cloud.alibaba.bom))
         implementation("org.springframework.boot:spring-boot-starter")
         implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
-        implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
         implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery")
         implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config")
+        implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
         implementation(libs.honoka.spring.boot.starter)
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
@@ -62,12 +62,13 @@ subprojects {
     dependencies {
         if(project in notBusinessServiceProjects) return@dependencies
         implementation("org.springframework.boot:spring-boot-starter-web")
-        implementation("org.springframework.boot:spring-boot-starter-data-redis")
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
         runtimeOnly("com.mysql:mysql-connector-j")
         implementation("org.flywaydb:flyway-mysql")
-        implementation(libs.mybatis.plus)
+        implementation(libs.mybatis.plus.spring.boot.starter)
         implementation(libs.mybatis.plus.jsqlparser)
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
+        implementation(libs.redisson.spring.boot.starter)
     }
     
     tasks {
