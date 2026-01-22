@@ -12,7 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 /**
  * 在存在自行保存的登录态的情况下，手动为[SecurityContextHolder.context]添加authentication信息
  */
-object CustomLoginStatusFilter : OncePerRequestFilter() {
+object LoginStatusFilter : OncePerRequestFilter() {
 
     private const val LOGIN_ID_HEADER = "X-Login-ID"
 

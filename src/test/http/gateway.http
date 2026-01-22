@@ -1,4 +1,22 @@
 GET {{prefix.gateway}}/auth/.well-known/oauth-authorization-server
 
 ###
+POST {{prefix.gateway}}/user/register
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password1"
+}
+
+###
+POST {{prefix.gateway}}/user/login
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password1"
+}
+
+###
 GET {{prefix.gateway}}/service1/hello

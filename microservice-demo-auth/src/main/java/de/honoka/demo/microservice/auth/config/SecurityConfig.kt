@@ -1,11 +1,11 @@
 package de.honoka.demo.microservice.auth.config
 
-import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWKSet
+import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
-import de.honoka.demo.microservice.auth.security.CustomLoginStatusFilter
+import de.honoka.demo.microservice.auth.security.LoginStatusFilter
 import de.honoka.sdk.spring.starter.security.DefaultAccessDeniedHandler
 import de.honoka.sdk.spring.starter.security.DefaultAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
@@ -50,21 +50,10 @@ class SecurityConfig(private val mainProperties: MainProperties) {
             csrf {
                 it.ignoringRequestMatchers(o.endpointsMatcher)
             }
-            o.authorizationEndpoint {
-                /*
-                 * 设置自定义授权确认页面路径（可以为任意路径，通常推荐为/oauth2/consent）
-                 *
-                 * 此路径必须设置，否则Spring Security会在客户端请求/oauth2/authorize时直接返回一段html，
-                 * 难以获取state等参数。
-                 * /oauth2/consent这个路径本身不存在，理论上是由开发者自行实现，但也可以不实现，而是在调用
-                 * /oauth2/authorize得到301响应后，直接根据要重定向的URL，拿到其中的state值。
-                 */
-                it.consentPage("/oauth2/consent")
-            }
         }
         //添加能够识别自定义登录态，并将其放入SecurityContextHolder中的处理器
         //不可用OAuth2相关Filter来确定要添加的Filter所处的位置，因为OAuth2相关Filter在调用build时才会被添加
-        addFilterAfter(CustomLoginStatusFilter, SecurityContextHolderFilter::class.java)
+        addFilterAfter(LoginStatusFilter, SecurityContextHolderFilter::class.java)
         oauth2ResourceServer {
             //使用JWT处理接收到的Access Token
             it.jwt(Customizer.withDefaults())
@@ -93,13 +82,13 @@ class SecurityConfig(private val mainProperties: MainProperties) {
     @Bean
     fun jwkSource(): JWKSource<SecurityContext> {
         val keyString = File(mainProperties.keyPath!!).readText()
-        val ecKey = ECKey.parseFromPEMEncodedObjects(keyString).run {
-            ECKey.Builder(toECKey()).run {
+        val key = RSAKey.parseFromPEMEncodedObjects(keyString).run {
+            RSAKey.Builder(toRSAKey()).run {
                 keyID(mainProperties.keyId!!)
                 build()
             }
         }
-        return ImmutableJWKSet(JWKSet(ecKey))
+        return ImmutableJWKSet(JWKSet(key))
     }
 
     /**

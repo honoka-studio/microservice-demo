@@ -23,6 +23,7 @@ plugins {
 
 rootProject.name = "microservice-demo"
 
+include("${rootProject.name}-common")
 include("${rootProject.name}-gateway")
 include("${rootProject.name}-auth")
 include("${rootProject.name}-user")

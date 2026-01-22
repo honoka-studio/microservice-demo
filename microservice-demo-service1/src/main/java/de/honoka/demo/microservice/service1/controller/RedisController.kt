@@ -16,7 +16,7 @@ import kotlin.concurrent.withLock
 @RestController
 class RedisController(
     private val redisTemplate: DefaultRedisTemplate,
-    private val redissonClient: RedissonClient
+    redissonClient: RedissonClient
 ) {
 
     private val prefix = "service1:redis"

@@ -1,0 +1,33 @@
+GET {{prefix.auth}}/.well-known/oauth-authorization-server
+
+###
+GET {{prefix.auth}}/oauth2/jwks
+
+###
+POST {{prefix.user}}/login
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password1"
+}
+
+> {% client.global.set('login_id', response.body['data']['loginId']) %}
+
+###
+GET {{prefix.auth}}/oauth2/authorize
+    ?response_type=code
+    &client_id=microservice-demo-gateway
+    &scope=all
+    &redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Foauth2%2Fcallback
+X-Login-ID: {{login_id}}
+
+###
+POST {{prefix.auth}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+# Authorization的值为clientId与clientSecret（原文），用冒号拼接，然后base64编码
+Authorization: Basic bWljcm9zZXJ2aWNlLWRlbW8tZ2F0ZXdheTptaWNyb3NlcnZpY2UtZGVtby1nYXRld2F5
+
+grant_type=authorization_code
+&code=vecQfbYE5tD1gfCqn9x4wOiskvS_a78W2BZWaXyvhJ2yHWhlennJqbyafYiWW70xu8U1o4wk8w3F4uVpwzTaUyOU1bRY6p-eV7kR_nzHuZ49o_fPTIyCQbi970rcHDn6
+&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Foauth2%2Fcallback

@@ -1,15 +1,25 @@
 package de.honoka.demo.microservice.auth.test
 
+import de.honoka.demo.microservice.common.util.SecurityUtils
 import jakarta.annotation.Resource
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
+import java.time.Duration
 import java.util.*
+
+class AllTest {
+
+    @Test
+    fun test1() {
+        println("test1")
+    }
+}
 
 @SpringBootTest
 class AllSpringTest {
@@ -17,14 +27,13 @@ class AllSpringTest {
     @Resource
     lateinit var registeredClientRepository: RegisteredClientRepository
 
-    @Resource
-    lateinit var passwordEncoder: PasswordEncoder
-
     @Test
     fun test1() {
         val client = RegisteredClient.withId(UUID.randomUUID().toString()).run {
             clientId("microservice-demo-gateway")
-            clientSecret(passwordEncoder.encode("microservice-demo-gateway"))
+            clientSecret(SecurityUtils.passwordEncoder.encode(
+                "microservice-demo-gateway"
+            ))
             /*
              * 通过/oauth2/token接口提供授权码以获取token时，使用默认的认证方式（用于校验是哪个用户在为指定的
              * 第三方应用请求token）。
@@ -51,10 +60,16 @@ class AllSpringTest {
                  * 确认授权的路径）
                  * scope：可供用户选择的访问内容，空格隔开
                  */
-                requireAuthorizationConsent(true)
+                requireAuthorizationConsent(false)
+                build()
+            }
+            val tokenSettings = TokenSettings.builder().run {
+                accessTokenTimeToLive(Duration.ofMinutes(5))
+                refreshTokenTimeToLive(Duration.ofHours(1))
                 build()
             }
             clientSettings(clientSettings)
+            tokenSettings(tokenSettings)
             build()
         }
         registeredClientRepository.save(client)

@@ -18,6 +18,11 @@ spring:
         namespace: ${app.nacos.namespace}
       config:
         namespace: ${app.nacos.namespace}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:${server.port}/auth
 
 honoka:
   web:
@@ -58,3 +63,10 @@ spring.cloud.gateway.server.webflux.routes:
       - Path=/service1/**
     filters:
       - StripPrefix=1
+
+app:
+  gateway:
+    white-list:
+      - /auth/**
+      - /user/register
+      - /user/login

@@ -5,4 +5,4 @@ spring:
 app:
   auth:
     key-id: 3072c7b9-1302-370e-82cb-eb0bbf859f62
-    key-path: ./files/auth-key/auth-private-key.pem
+    key-path: ./files/auth-key/auth-key.pem
