@@ -1,4 +1,7 @@
+import de.honoka.gradle.util.dsl.classifyProjects
+import de.honoka.gradle.util.dsl.configure
 import de.honoka.gradle.util.dsl.libs
+import de.honoka.gradle.util.dsl.project
 import de.honoka.gradle.util.dsl.projects
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.charset.StandardCharsets
@@ -17,14 +20,14 @@ allprojects {
     version = libs.versions.p.root.get()
 }
 
-//非服务项目
-val notServiceProjects = projects("${rootProject.name}-common")
+val projects = classifyProjects {
+    jvm = subprojects - projects("web", rootPrefix = true)
+    library = projects("common", rootPrefix = true)
+    app = jvm - library
+    businessApp = app - projects("gateway", rootPrefix = true)
+}
 
-//非业务服务项目
-val notBusinessServiceProjects = projects("${rootProject.name}-gateway")
-
-//项目公共配置
-subprojects {
+projects.jvm.configure {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.kapt")
@@ -73,9 +76,7 @@ subprojects {
 }
 
 //服务项目公共配置
-subprojects {
-    if(project in notServiceProjects) return@subprojects
-
+projects.app.configure {
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "org.springframework.boot")
 
@@ -93,7 +94,7 @@ subprojects {
 
     //业务服务项目配置
     dependencies {
-        if(project in notBusinessServiceProjects) return@dependencies
+        if(project !in projects.businessApp) return@dependencies
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
         runtimeOnly("com.mysql:mysql-connector-j")
@@ -102,7 +103,7 @@ subprojects {
         implementation(libs.mybatis.plus.jsqlparser)
         implementation("org.springframework.boot:spring-boot-starter-data-redis")
         implementation(libs.redisson.spring.boot.starter)
-        implementation(project(":${rootProject.name}-common"))
+        implementation(project("common", true))
     }
 }
 
