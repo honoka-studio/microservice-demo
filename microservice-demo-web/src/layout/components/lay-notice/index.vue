@@ -1,18 +1,36 @@
 <script setup lang="ts">
-import {computed, ref} from "vue";
-import {noticesData} from "./data";
-import NoticeList from "./components/NoticeList.vue";
-import BellIcon from "~icons/ep/bell";
+import { computed, ref } from 'vue'
+import BellIcon from '~icons/ep/bell'
+import NoticeList from './components/NoticeList.vue'
+import { TabItem } from './data'
 
 const noticesNum = ref(0);
-const notices = ref(noticesData);
-const activeKey = ref(noticesData[0]?.key);
+const notices = ref<TabItem[]>([
+  {
+    key: "1",
+    name: "通知",
+    list: [],
+    emptyText: "暂无通知"
+  },
+  {
+    key: "2",
+    name: "消息",
+    list: [],
+    emptyText: "暂无消息"
+  },
+  {
+    key: "3",
+    name: "待办",
+    list: [],
+    emptyText: "暂无待办"
+  }
+]);
+const activeKey = ref(notices.value[0]?.key);
 
 notices.value.map(v => (noticesNum.value += v.list.length));
 
 const getLabel = computed(
-  () => item =>
-    item.name + (item.list.length > 0 ? `(${item.list.length})` : "")
+  () => (item: any) => item.name + (item.list.length > 0 ? `(${item.list.length})` : "")
 );
 </script>
 

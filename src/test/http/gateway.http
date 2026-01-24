@@ -18,5 +18,8 @@ Content-Type: application/json
   "password": "password1"
 }
 
+> {% client.global.set('access_token', response.body['data']['accessToken']) %}
+
 ###
 GET {{prefix.gateway}}/service1/hello
+Authorization: Bearer {{access_token}}

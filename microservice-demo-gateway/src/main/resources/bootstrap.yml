@@ -22,7 +22,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:${server.port}/auth
+          issuer-uri: ${app.security.jwt.issuer-uri}
+          jwk-set-uri: ${app.security.jwt.jwk-set-uri}
 
 honoka:
   web:

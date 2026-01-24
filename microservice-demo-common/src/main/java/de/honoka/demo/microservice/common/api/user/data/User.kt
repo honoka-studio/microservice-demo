@@ -23,5 +23,9 @@ data class UserLoginRequest(
 
 data class UserLoginResponse(
 
-    var loginId: String? = null
+    var tokenType: String? = null,
+
+    var accessToken: String? = null,
+
+    var refreshToken: String? = null
 )

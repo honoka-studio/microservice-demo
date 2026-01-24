@@ -1,91 +1,85 @@
 <script setup lang="ts">
-import Motion from "./utils/motion";
-import {useRouter} from "vue-router";
-import {message} from "@/utils/message";
-import {loginRules} from "./utils/rule";
-import {reactive, ref, toRaw} from "vue";
-import {debounce} from "@pureadmin/utils";
-import {useNav} from "@/layout/hooks/useNav";
-import {useEventListener} from "@vueuse/core";
-import type {FormInstance} from "element-plus";
-import {useLayout} from "@/layout/hooks/useLayout";
-import {useUserStoreHook} from "@/store/modules/user";
-import {getTopMenu, initRouter} from "@/router/utils";
-import {avatar, bg, illustration} from "./utils/static";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
+import darkIcon from '@/assets/svg/dark.svg?component'
 
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
-import Lock from "~icons/ri/lock-fill";
-import User from "~icons/ri/user-3-fill";
+import dayIcon from '@/assets/svg/day.svg?component'
+import { useRenderIcon } from '@/components/ReIcon/src/hooks'
+import { useDataThemeChange } from '@/layout/hooks/useDataThemeChange'
+import { useLayout } from '@/layout/hooks/useLayout'
+import { useNav } from '@/layout/hooks/useNav'
+import { getTopMenu, initRouter } from '@/router/utils'
+import { useUserStoreHook } from '@/store/modules/user'
+import { debounce } from '@pureadmin/utils'
+import { useEventListener } from '@vueuse/core'
+import type { FormInstance } from 'element-plus'
+import { reactive, ref, toRaw } from 'vue'
+import { useRouter } from 'vue-router'
+import Lock from '~icons/ri/lock-fill'
+import User from '~icons/ri/user-3-fill'
+import Motion from './utils/motion'
+import { loginRules } from './utils/rule'
+import { avatar, bg, illustration } from './utils/static'
 
 defineOptions({
-  name: "Login"
-});
+  name: 'Login'
+})
 
-const router = useRouter();
-const loading = ref(false);
-const disabled = ref(false);
-const ruleFormRef = ref<FormInstance>();
+const router = useRouter()
+const loading = ref(false)
+const disabled = ref(false)
+const ruleFormRef = ref<FormInstance>()
 
-const { initStorage } = useLayout();
-initStorage();
+const { initStorage } = useLayout()
+initStorage()
 
-const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange();
-dataThemeChange(overallStyle.value);
-const { title } = useNav();
+const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange()
+dataThemeChange(overallStyle.value)
+const { title } = useNav()
 
 const ruleForm = reactive({
-  username: "admin",
-  password: "admin123"
-});
+  username: 'admin',
+  password: 'admin123'
+})
 
-const onLogin = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+const onLogin = async(formEl: FormInstance | undefined) => {
+  if(!formEl) return
   await formEl.validate(valid => {
-    if (valid) {
-      loading.value = true;
+    if(valid) {
+      loading.value = true
       useUserStoreHook()
         .loginByUsername({
           username: ruleForm.username,
           password: ruleForm.password
         })
-        .then(res => {
-          if (res.success) {
-            // 获取后端路由
-            return initRouter().then(() => {
-              disabled.value = true;
-              router
-                .push(getTopMenu(true).path)
-                .then(() => {
-                  message("登录成功", { type: "success" });
-                })
-                .finally(() => (disabled.value = false));
-            });
-          } else {
-            message("登录失败", { type: "error" });
-          }
+        .then(async () => {
+          return initRouter().then(() => {
+            disabled.value = true
+            router
+              .push(getTopMenu(true).path)
+              .finally(() => (disabled.value = false))
+          })
         })
-        .finally(() => (loading.value = false));
+        .catch(() => {})
+        .finally(() => {
+          loading.value = false
+        })
     }
-  });
-};
+  })
+}
 
 const immediateDebounce: any = debounce(
   formRef => onLogin(formRef),
   1000,
   true
-);
+)
 
-useEventListener(document, "keydown", ({ code }) => {
-  if (
-    ["Enter", "NumpadEnter"].includes(code) &&
+useEventListener(document, 'keydown', ({ code }) => {
+  if(
+    ['Enter', 'NumpadEnter'].includes(code) &&
     !disabled.value &&
     !loading.value
   )
-    immediateDebounce(ruleFormRef.value);
-});
+    immediateDebounce(ruleFormRef.value)
+})
 </script>
 
 <template>

@@ -6,10 +6,13 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import de.honoka.demo.microservice.auth.security.LoginStatusFilter
+import de.honoka.demo.microservice.common.config.SecurityBaseConfig
+import de.honoka.demo.microservice.common.config.SecurityBaseProperties
 import de.honoka.sdk.spring.starter.security.DefaultAccessDeniedHandler
 import de.honoka.sdk.spring.starter.security.DefaultAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -27,8 +30,12 @@ import org.springframework.security.web.context.SecurityContextHolderFilter
 import java.io.File
 
 @EnableWebSecurity
+@Import(SecurityBaseConfig::class)
 @Configuration
-class SecurityConfig(private val mainProperties: MainProperties) {
+class SecurityConfig(
+    private val mainProperties: MainProperties,
+    private val securityBaseProperties: SecurityBaseProperties
+) {
 
     /**
      * OAuth2的相关配置
@@ -57,8 +64,17 @@ class SecurityConfig(private val mainProperties: MainProperties) {
         oauth2ResourceServer {
             //使用JWT处理接收到的Access Token
             it.jwt(Customizer.withDefaults())
+            /*
+             * 定义用于OAuth2相关的Filter的异常处理逻辑
+             * （此处的配置仅作用于OAuth2相关过滤器，不作用于AuthorizationFilter）
+             */
+            it.authenticationEntryPoint(DefaultAuthenticationEntryPoint)
+            it.accessDeniedHandler(DefaultAccessDeniedHandler)
         }
-        //设置自定义的Security异常处理器，用于处理未登录、无权访问等情况
+        /*
+         * 设置自定义的Security异常处理器，用于处理未登录、无权访问等情况
+         * （此处的配置仅作用于AuthorizationFilter）
+         */
         exceptionHandling {
             /*
              * 定义认证入口点，当AuthorizationFilter检测到SecurityContextHolder的context中没有
@@ -99,11 +115,13 @@ class SecurityConfig(private val mainProperties: MainProperties) {
         OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)
 
     /**
-     * 配置授权服务器请求地址（与OAuth2相关的一些请求地址，默认为/oauth2/token等）
+     * 授权服务器配置
+     *
+     * 可配置：请求地址（与OAuth2相关的一些请求地址，默认为/oauth2/token等），JWT签发者（iss）等
      */
     @Bean
     fun authorizationServerSettings(): AuthorizationServerSettings = AuthorizationServerSettings.builder().run {
-        //不作配置，使用默认地址
+        issuer(securityBaseProperties.jwt.issuerUri)
         build()
     }
 

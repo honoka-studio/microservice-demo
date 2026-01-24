@@ -1,5 +1,5 @@
-import type {ECharts} from "echarts";
-import type {TableColumns} from "@pureadmin/table";
+import type { TableColumns } from '@pureadmin/table'
+import type { ECharts } from 'echarts'
 
 /**
  * 全局类型声明，无需引入直接在 `.vue` 、`.ts` 、`.tsx` 文件使用即可获得类型提示
@@ -64,6 +64,7 @@ declare global {
    * @see {@link https://pure-admin.cn/pages/config/#%E5%85%B7%E4%BD%93%E9%85%8D%E7%BD%AE}
    */
   interface ViteEnv {
+    VITE_API_BASE_URL: string
     VITE_PUBLIC_PATH: string;
     VITE_ROUTER_HISTORY: string;
     VITE_CDN: boolean;
@@ -81,7 +82,6 @@ declare global {
    * @see {@link https://pure-admin.cn/pages/config/#platform-config-json}
    */
   interface PlatformConfigs {
-    Version?: string;
     Title?: string;
     FixedHeader?: boolean;
     HiddenSideBar?: boolean;

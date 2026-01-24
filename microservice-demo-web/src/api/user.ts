@@ -1,29 +1,39 @@
-import { http } from "@/utils/http";
+import { http } from '@/utils/http'
 
 export type UserResult = {
-  success: boolean;
+
+  success: boolean
+
   data: {
+
     /** 头像 */
-    avatar: string;
+    avatar: string
+
     /** 用户名 */
-    username: string;
+    username: string
+
     /** 昵称 */
-    nickname: string;
+    nickname: string
+
     /** 当前登录用户的角色 */
-    roles: Array<string>;
+    roles: Array<string>
+
     /** 按钮级别权限 */
-    permissions: Array<string>;
+    permissions: Array<string>
+
     /** `token` */
-    accessToken: string;
+    accessToken: string
+
     /** 用于调用刷新`accessToken`的接口时所需的`token` */
-    refreshToken: string;
+    refreshToken: string
+
     /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
-    expires: Date;
-  };
-};
+    expires: Date
+  }
+}
 
 export type RefreshTokenResult = {
-  success: boolean;
+  success: boolean
   data: {
     /** `token` */
     accessToken: string;
@@ -31,15 +41,26 @@ export type RefreshTokenResult = {
     refreshToken: string;
     /** `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'） */
     expires: Date;
-  };
-};
+  }
+}
 
-/** 登录 */
-export const getLogin = (data?: object) => {
-  return http.request<UserResult>("post", "/login", { data });
-};
+const userApis = {
+  login: (data: any): Promise<any> => http.post('/user/login', { data }),
+  authorize(loginId: string): Promise<Response> {
+    const params = {
+      'response_type': 'code',
+      'client_id': 'microservice-demo-gateway',
+      'scope': 'all',
+      'redirect_uri': 'http://localhost:8080/fakePath/oauth2/callback'
+    }
+    const query = new URLSearchParams(params).toString()
+    return fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/oauth2/authorize?${query}`, {
+      headers: {
+        'X-Login-ID': loginId
+      }
+    })
+  },
+  refreshToken: (data: any): Promise<RefreshTokenResult> => http.post('/refresh-token', { data })
+}
 
-/** 刷新`token` */
-export const refreshTokenApi = (data?: object) => {
-  return http.request<RefreshTokenResult>("post", "/refresh-token", { data });
-};
+export default userApis

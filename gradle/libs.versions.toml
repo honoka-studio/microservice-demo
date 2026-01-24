@@ -3,10 +3,10 @@
 p-root = "1.0.0-dev"
 
 # gradle plugins version
-gp-honoka-basic = "1.0.4-dev"
+gp-honoka-basic = "1.1.0-dev"
 
 # dependencies version
-d-kotlin = "2.2.0"
+d-kotlin = "2.2.21"
 d-kotlin-coroutines = "1.10.2"
 d-spring-boot = "3.5.9"
 d-spring-cloud = "2025.0.1"

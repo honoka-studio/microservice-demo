@@ -1,6 +1,5 @@
 {
-  "Version": "6.2.0",
-  "Title": "PureAdmin",
+  "Title": "Microservice Demo",
   "FixedHeader": true,
   "HiddenSideBar": false,
   "MultiTagsCache": false,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {getTopMenu} from "@/router/utils";
-import {useNav} from "@/layout/hooks/useNav";
+import { useNav } from '@/layout/hooks/useNav'
+import { getTopMenu } from '@/router/utils'
 
 defineProps({
   collapse: Boolean
@@ -61,7 +61,7 @@ const { title, getLogo } = useNav();
       margin: 2px 0 0 12px;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 600;
       line-height: 32px;
       color: var(--pure-theme-sub-menu-active-text);

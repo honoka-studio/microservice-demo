@@ -1,24 +1,17 @@
-import de.honoka.gradle.util.dsl.classifyProjects
-import de.honoka.gradle.util.dsl.configure
-import de.honoka.gradle.util.dsl.libs
-import de.honoka.gradle.util.dsl.project
-import de.honoka.gradle.util.dsl.projects
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.nio.charset.StandardCharsets
+import de.honoka.gradle.util.data.classifyProjects
+import de.honoka.gradle.util.dsl.*
 
 plugins {
     java
-    alias(libs.plugins.kotlin)
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.kotlin.spring)
-    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.honoka.basic)
 }
 
-allprojects {
-    group = "de.honoka.demo.microservice"
-    version = libs.versions.p.root.get()
-}
+group = "de.honoka.demo.microservice"
+version = libs.versions.p.root.get()
 
 val projects = classifyProjects {
     jvm = subprojects - projects("web", rootPrefix = true)
@@ -27,62 +20,46 @@ val projects = classifyProjects {
     businessApp = app - projects("gateway", rootPrefix = true)
 }
 
-projects.jvm.configure {
-    apply(plugin = "java")
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.kotlin.kapt")
-    apply(plugin = "de.honoka.gradle.plugin.basic")
-
-    java {
-        toolchain.languageVersion = JavaLanguageVersion.of(17)
+projects.jvm {
+    applier {
+        java
+        alias(libs.plugins.kotlin)
+        alias(libs.plugins.kotlin.kapt)
+        alias(libs.plugins.honoka.basic)
     }
 
+    group = rootProject.group
+    version = rootProject.version
+
     honoka.basic {
+        configs {
+            java(17)
+            javaTask()
+            kotlin()
+            kapt()
+        }
+
         dependencies {
             kotlin()
             springBootBom()
             springBootConfigProcessor()
         }
     }
-    
-    tasks {
-        withType<JavaCompile> {
-            options.run {
-                encoding = StandardCharsets.UTF_8.name()
-                val compilerArgs = compilerArgs as MutableCollection<String>
-                compilerArgs += listOf("-parameters")
-            }
-        }
-
-        /*
-         * 由于除了原本的compileKotlin任务外，还存在compileTestKotlin和kapt的KaptGenerateStubsTask
-         * （KotlinCompile的子类）任务需要配置，因此这里不能使用“compileKotlin {}”块。
-         */
-        withType<KotlinCompile> {
-            compilerOptions {
-                freeCompilerArgs.addAll("-Xjsr305=strict", "-Xjvm-default=all")
-            }
-        }
-
-        withType<Test> {
-            useJUnitPlatform()
-            workingDir = rootDir
-        }
-    }
-
-    kapt {
-        keepJavacAnnotationProcessors = true
-    }
-}
-
-//服务项目公共配置
-projects.app.configure {
-    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
-    apply(plugin = "org.springframework.boot")
 
     dependencies {
         implementation(platform(libs.spring.cloud.bom))
         implementation(platform(libs.spring.cloud.alibaba.bom))
+    }
+}
+
+//服务项目公共配置
+projects.app {
+    applier {
+        alias(libs.plugins.kotlin.spring)
+        alias(libs.plugins.spring.boot)
+    }
+
+    dependencies {
         implementation("org.springframework.boot:spring-boot-starter")
         implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
         implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery")
@@ -91,10 +68,11 @@ projects.app.configure {
         implementation(libs.honoka.spring.boot.starter)
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
+}
 
-    //业务服务项目配置
+//业务服务项目配置
+projects.businessApp {
     dependencies {
-        if(project !in projects.businessApp) return@dependencies
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
         runtimeOnly("com.mysql:mysql-connector-j")

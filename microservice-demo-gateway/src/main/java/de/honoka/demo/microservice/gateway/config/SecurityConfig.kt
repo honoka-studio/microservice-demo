@@ -1,5 +1,7 @@
 package de.honoka.demo.microservice.gateway.config
 
+import de.honoka.sdk.spring.starter.security.DefaultServerAccessDeniedHandler
+import de.honoka.sdk.spring.starter.security.DefaultServerAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer
@@ -19,9 +21,15 @@ class SecurityConfig(private val mainProperties: MainProperties) {
         }
         oauth2ResourceServer {
             it.jwt(Customizer.withDefaults())
+            it.authenticationEntryPoint(DefaultServerAuthenticationEntryPoint)
+            it.accessDeniedHandler(DefaultServerAccessDeniedHandler)
         }
         csrf {
             it.disable()
+        }
+        exceptionHandling {
+            it.authenticationEntryPoint(DefaultServerAuthenticationEntryPoint)
+            it.accessDeniedHandler(DefaultServerAccessDeniedHandler)
         }
         build()
     }

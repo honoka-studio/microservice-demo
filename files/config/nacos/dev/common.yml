@@ -8,3 +8,7 @@ app:
     url:
       prefix: jdbc:mysql://vm.honoka.de:3306/
       suffix: ?serverTimezone=GMT%2B8
+  security:
+    jwt:
+      issuer-uri: http://localhost:8080/auth
+      jwk-set-uri: http://localhost:8080/auth/oauth2/jwks
