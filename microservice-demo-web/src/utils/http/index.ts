@@ -63,9 +63,7 @@ class PureHttp {
           PureHttp.initConfig.beforeRequestCallback(config)
           return config
         }
-        /** 请求白名单，放置一些不需要`token`的接口（通过设置请求白名单，防止`token`过期后再请求造成的死循环问题） */
-        const whiteList = ['/refresh-token', '/login']
-        return whiteList.some(url => config.url.endsWith(url)) ? config : new Promise(resolve => {
+        return config.headers['Authorization'] ? config : new Promise(resolve => {
           const data = getToken()
           if(data) {
             const now = new Date().getTime()
@@ -77,9 +75,7 @@ class PureHttp {
                 useUserStoreHook()
                   .handRefreshToken({ refreshToken: data.refreshToken })
                   .then(res => {
-                    const token = res.data.accessToken
-                    config.headers['Authorization'] = formatToken(token)
-                    PureHttp.requests.forEach(cb => cb(token))
+                    PureHttp.requests.forEach(cb => cb(res.data.accessToken))
                     PureHttp.requests = []
                   })
                   .finally(() => {
@@ -88,9 +84,7 @@ class PureHttp {
               }
               resolve(PureHttp.retryOriginalRequest(config))
             } else {
-              config.headers['Authorization'] = formatToken(
-                data.accessToken
-              )
+              config.headers['Authorization'] = formatToken(data.accessToken)
               resolve(config)
             }
           } else {

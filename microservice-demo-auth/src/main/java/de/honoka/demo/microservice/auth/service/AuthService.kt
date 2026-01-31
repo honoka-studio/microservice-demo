@@ -4,6 +4,7 @@ import cn.hutool.core.lang.UUID
 import de.honoka.demo.microservice.common.api.user.data.UserLoginRequest
 import de.honoka.demo.microservice.common.api.user.data.UserLoginResponse
 import de.honoka.demo.microservice.common.api.user.data.UserQueryRequest
+import de.honoka.demo.microservice.common.api.user.entity.User
 import de.honoka.demo.microservice.common.api.user.stub.UserControllerStub
 import de.honoka.demo.microservice.common.util.SecurityUtils
 import de.honoka.sdk.spring.starter.redis.DefaultRedisTemplate
@@ -25,9 +26,15 @@ class AuthService(
         )
         if(invalid) error("用户名或密码错误")
         val loginId = UUID.randomUUID().toString()
-        redisTemplate.opsForValue().set(
-            "login_id:$loginId", 0, 10, TimeUnit.SECONDS
-        )
+        setLoginId(loginId, user)
         return UserLoginResponse(loginId)
     }
+
+    fun setLoginId(loginId: String, user: User) {
+        redisTemplate.opsForValue().set(
+            "login_id:$loginId", user.id!!, 10, TimeUnit.SECONDS
+        )
+    }
+
+    fun findUserByLoginId(loginId: String): Long? = redisTemplate.opsForValue()["login_id:$loginId"] as Long?
 }

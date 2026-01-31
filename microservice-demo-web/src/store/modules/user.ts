@@ -1,4 +1,4 @@
-import userApis, { type RefreshTokenResult } from '@/api/user'
+import userApis from '@/api/user'
 import { type DataInfo, removeToken, setToken, userKey } from '@/utils/auth'
 import { defineStore } from 'pinia'
 import { resetRouter, router, routerArrays, storageLocal, store, type userType } from '../utils'
@@ -55,9 +55,10 @@ export const useUserStore = defineStore('pure-user', {
       let loginId = (await userApis.login(data)).data.loginId
       let authCode = (await userApis.authorize(loginId)).data.code
       let token = (await userApis.token(authCode))
-      console.log(token)
-      throw new Error('1')
-      //return res
+      let userInfo = (await userApis.self(token['access_token'])).data
+      let result = this.getLoginResponse(userInfo, token)
+      setToken(result.data)
+      return result
     },
     /** 前端登出（不调用接口） */
     async logOut() {
@@ -71,18 +72,26 @@ export const useUserStore = defineStore('pure-user', {
     },
     /** 刷新`token` */
     async handRefreshToken(data: any) {
-      return new Promise<RefreshTokenResult>((resolve, reject) => {
-        userApis.refreshToken(data)
-          .then(data => {
-            if(data) {
-              setToken(data.data)
-              resolve(data)
-            }
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
+      let token = await userApis.refreshToken(data.refreshToken)
+      let result = this.getLoginResponse({}, token)
+      setToken(result.data)
+      return result
+    },
+    getLoginResponse(userInfo: any, token: any): any {
+      const result = {
+        success: true,
+        data: {
+          ...userInfo,
+          nickname: userInfo.username,
+          roles: ['admin'],
+          permissions: userInfo.authorities,
+          accessToken: token['access_token'],
+          refreshToken: token['refresh_token']
+        }
+      }
+      let expires = new Date().getTime() + token['expires_in'] * 1000
+      result.data.expires = new Date(expires).toLocaleString()
+      return result
     }
   }
 })

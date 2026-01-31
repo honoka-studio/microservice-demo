@@ -8,6 +8,7 @@ import com.nimbusds.jose.proc.SecurityContext
 import de.honoka.demo.microservice.auth.security.LoginStatusFilter
 import de.honoka.demo.microservice.common.config.SecurityBaseConfig
 import de.honoka.demo.microservice.common.config.SecurityBaseProperties
+import de.honoka.demo.microservice.common.util.SecurityUtils
 import de.honoka.sdk.spring.starter.security.DefaultAccessDeniedHandler
 import de.honoka.sdk.spring.starter.security.DefaultAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
@@ -17,7 +18,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository
@@ -126,5 +126,5 @@ class SecurityConfig(
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+    fun passwordEncoder(): PasswordEncoder = SecurityUtils.passwordEncoder
 }

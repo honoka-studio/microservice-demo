@@ -45,6 +45,8 @@ const wrapperEnv = (envConf: Recordable): ViteEnv => {
   // 默认值
   const ret: ViteEnv = {
     VITE_API_BASE_URL: '',
+    VITE_OAUTH2_CALLBACK: '',
+    VITE_OAUTH2_API_AUTH_HEADER: '',
     VITE_PUBLIC_PATH: '',
     VITE_ROUTER_HISTORY: '',
     VITE_CDN: false,

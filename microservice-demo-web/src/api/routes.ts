@@ -6,5 +6,5 @@ type Result = {
 };
 
 export const getAsyncRoutes = () => {
-  return http.get<Result>('/get-async-routes')
+  return http.get<Result>('http://localhost:5173/get-async-routes')
 }

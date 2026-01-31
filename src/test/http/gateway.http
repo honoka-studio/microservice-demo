@@ -43,6 +43,7 @@ grant_type=authorization_code
 > {%
   client.global.set('token_type', response.body['token_type'])
   client.global.set('access_token', response.body['access_token'])
+  client.global.set('refresh_token', response.body['refresh_token'])
 %}
 
 ###
@@ -50,7 +51,24 @@ GET {{url_prefix.gateway}}/service1/hello
 Authorization: {{token_type}} {{access_token}}
 
 ###
+POST {{url_prefix.gateway}}/auth/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic bWljcm9zZXJ2aWNlLWRlbW8td2ViOm1pY3Jvc2VydmljZS1kZW1vLXdlYg==
+
+grant_type=refresh_token
+&refresh_token={{refresh_token}}
+
+> {%
+  client.global.set('token_type', response.body['token_type'])
+  client.global.set('access_token', response.body['access_token'])
+%}
+
+###
 GET {{url_prefix.gateway}}/service1/hello
 Authorization: {{token_type}} {{access_token}}
 
 > {% client.global.set('access_token', '') %}
+
+###
+GET {{url_prefix.gateway}}/user/user/self
+Authorization: {{token_type}} {{access_token}}

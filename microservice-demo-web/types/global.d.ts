@@ -20,7 +20,7 @@ declare global {
       devDependencies: Recordable<string>;
     };
     lastBuildTime: string;
-  };
+  }
 
   /**
    * Window 的类型提示
@@ -28,13 +28,21 @@ declare global {
   interface Window {
     // Global vue app instance
     __APP__: App<Element>;
+
     webkitCancelAnimationFrame: (handle: number) => void;
+
     mozCancelAnimationFrame: (handle: number) => void;
+
     oCancelAnimationFrame: (handle: number) => void;
+
     msCancelAnimationFrame: (handle: number) => void;
+
     webkitRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+
     mozRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+
     oRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+
     msRequestAnimationFrame: (callback: FrameRequestCallback) => number;
   }
 
@@ -43,21 +51,16 @@ declare global {
    */
   interface Document {
     webkitFullscreenElement?: Element;
+
     mozFullScreenElement?: Element;
+
     msFullscreenElement?: Element;
   }
 
   /**
    * 打包压缩格式的类型声明
    */
-  type ViteCompression =
-    | "none"
-    | "gzip"
-    | "brotli"
-    | "both"
-    | "gzip-clear"
-    | "brotli-clear"
-    | "both-clear";
+  type ViteCompression = 'none' | 'gzip' | 'brotli' | 'both' | 'gzip-clear' | 'brotli-clear' | 'both-clear'
 
   /**
    * 全局自定义环境变量的类型声明
@@ -65,10 +68,19 @@ declare global {
    */
   interface ViteEnv {
     VITE_API_BASE_URL: string
+
+    VITE_OAUTH2_CALLBACK: string
+
+    VITE_OAUTH2_API_AUTH_HEADER: string
+
     VITE_PUBLIC_PATH: string;
+
     VITE_ROUTER_HISTORY: string;
+
     VITE_CDN: boolean;
+
     VITE_HIDE_HOME: string;
+
     VITE_COMPRESSION: ViteCompression;
   }
 
@@ -83,29 +95,53 @@ declare global {
    */
   interface PlatformConfigs {
     Title?: string;
+
     FixedHeader?: boolean;
+
     HiddenSideBar?: boolean;
+
     MultiTagsCache?: boolean;
+
     MaxTagsLevel?: number;
+
     KeepAlive?: boolean;
+
     Locale?: string;
+
     Layout?: string;
+
     Theme?: string;
+
     DarkMode?: boolean;
+
     OverallStyle?: string;
+
     Grey?: boolean;
+
     Weak?: boolean;
+
     HideTabs?: boolean;
+
     HideFooter?: boolean;
+
     Stretch?: boolean | number;
+
     SidebarStatus?: boolean;
+
     EpThemeColor?: string;
+
     ShowLogo?: boolean;
+
     ShowModel?: string;
+
     MenuArrowIconNoTransition?: boolean;
+
     CachingAsyncRoutes?: boolean;
+
     TooltipEffect?: Effect;
+
     ResponsiveStorageNameSpace?: string;
+
     MenuSearchHistory?: number;
   }
 
@@ -115,26 +151,47 @@ declare global {
    */
   interface StorageConfigs {
     version?: string;
+
     title?: string;
+
     fixedHeader?: boolean;
+
     hiddenSideBar?: boolean;
+
     multiTagsCache?: boolean;
+
     keepAlive?: boolean;
+
     locale?: string;
+
     layout?: string;
+
     theme?: string;
+
     darkMode?: boolean;
+
     grey?: boolean;
+
     weak?: boolean;
+
     hideTabs?: boolean;
+
     hideFooter?: boolean;
+
     sidebarStatus?: boolean;
+
     epThemeColor?: string;
+
     themeColor?: string;
+
     overallStyle?: string;
+
     showLogo?: boolean;
+
     showModel?: string;
+
     menuSearchHistory?: number;
+
     username?: string;
   }
 
@@ -145,6 +202,7 @@ declare global {
     locale: {
       locale?: string;
     };
+
     layout: {
       layout?: string;
       theme?: string;
@@ -154,6 +212,7 @@ declare global {
       themeColor?: string;
       overallStyle?: string;
     };
+
     configure: {
       grey?: boolean;
       weak?: boolean;
@@ -164,6 +223,7 @@ declare global {
       multiTagsCache?: boolean;
       stretch?: boolean | number;
     };
+
     tags?: Array<any>;
   }
 
@@ -172,7 +232,9 @@ declare global {
    */
   interface GlobalPropertiesApi {
     $echarts: ECharts;
+
     $storage: ResponsiveStorage;
+
     $config: PlatformConfigs;
   }
 
