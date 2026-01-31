@@ -11,27 +11,19 @@ spring:
       - nacos:${spring.application.name}.yml?refreshEnabled=true
   cloud:
     nacos:
-      server-addr: ${app.nacos.server}
-      username: ${app.nacos.username}
-      password: ${app.nacos.password}
+      server-addr: ${microservice-demo.nacos.server}
+      username: ${microservice-demo.nacos.username}
+      password: ${microservice-demo.nacos.password}
       discovery:
-        namespace: ${app.nacos.namespace}
+        namespace: ${microservice-demo.nacos.namespace}
       config:
-        namespace: ${app.nacos.namespace}
+        namespace: ${microservice-demo.nacos.namespace}
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${app.security.jwt.issuer-uri}
-          jwk-set-uri: ${app.security.jwt.jwk-set-uri}
-
-honoka:
-  web:
-    enabled: false
-  webflux:
-    enabled: true
-    cors:
-      enabled: true
+          issuer-uri: ${microservice-demo.security.jwt.issuer-uri}
+          jwk-set-uri: ${microservice-demo.security.jwt.jwk-set-uri}
 ---
 spring.cloud.gateway.server.webflux.routes:
   # 路由配置的名称，必须保证在本应用中唯一
@@ -65,9 +57,20 @@ spring.cloud.gateway.server.webflux.routes:
     filters:
       - StripPrefix=1
 
-app:
+honoka:
+  web:
+    enabled: false
+  webflux:
+    enabled: true
+    gateway:
+      enabled: true
+
+microservice-demo:
   gateway:
     white-list:
       - /auth/**
-      - /user/register
-      - /user/login
+      - /user/user/register
+
+logging:
+  level:
+    org.springframework.web.server.adapter.DefaultServerWebExchange: off

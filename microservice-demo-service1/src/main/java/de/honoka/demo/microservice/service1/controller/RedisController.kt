@@ -1,7 +1,7 @@
 package de.honoka.demo.microservice.service1.controller
 
 import cn.hutool.core.lang.UUID
-import de.honoka.sdk.spring.starter.redis.basic.DefaultRedisTemplate
+import de.honoka.sdk.spring.starter.redis.DefaultRedisTemplate
 import de.honoka.sdk.util.kotlin.lang.log
 import de.honoka.sdk.util.kotlin.lang.tryLock
 import de.honoka.sdk.util.web.ApiResponse

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class AllController {
+class IndexController {
 
     @GetMapping("/hello")
     fun hello(): ApiResponse<*> = ApiResponse.success("Hello from service1.")

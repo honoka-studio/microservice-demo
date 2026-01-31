@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(SecurityBaseProperties::class)
 class SecurityBaseConfig
 
-@ConfigurationProperties("app.security")
+@ConfigurationProperties("microservice-demo.security")
 data class SecurityBaseProperties(
 
     var jwt: Jwt = Jwt()

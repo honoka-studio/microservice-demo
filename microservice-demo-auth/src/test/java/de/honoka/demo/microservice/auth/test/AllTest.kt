@@ -30,9 +30,9 @@ class AllSpringTest {
     @Test
     fun test1() {
         val client = RegisteredClient.withId(UUID.randomUUID().toString()).run {
-            clientId("microservice-demo-user")
+            clientId("microservice-demo-web")
             clientSecret(SecurityUtils.passwordEncoder.encode(
-                "microservice-demo-user"
+                "microservice-demo-web"
             ))
             /*
              * 通过/oauth2/token接口提供授权码以获取token时，使用默认的认证方式（用于校验是哪个用户在为指定的
@@ -48,7 +48,8 @@ class AllSpringTest {
             authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             //用户确认授权后，请求以下回调地址，并在请求参数中携带code参数（授权码）
-            redirectUri("http://localhost:8082/oauth2/callback")
+            redirectUri("http://localhost:8080/auth/oauth2/callback")
+            redirectUri("http://localhost:5173/api/auth/oauth2/callback")
             //设置客户端权限范围
             scope("all")
             val clientSettings = ClientSettings.builder().run {

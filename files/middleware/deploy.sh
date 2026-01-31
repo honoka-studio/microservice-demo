@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set +e
-rm -rf /root/data/mysql
 docker rm -fv mysql
+rm -rf /root/data/mysql
 set -e
 
 # mysql启动后需执行一些初始化SQL（本目录下的mysql/init.sql）
@@ -14,8 +14,8 @@ docker run -d --name mysql \
   mysql:8.0.43
 
 set +e
-rm -rf /root/data/nacos
 docker rm -fv nacos
+rm -rf /root/data/nacos
 set -e
 
 # nacos启动前需先手动建库建表，以下链接包含相关SQL
@@ -44,8 +44,8 @@ docker run -d --name nacos \
   nacos/nacos-server:v3.1.0
 
 set +e
-rm -rf /root/data/redis
 docker rm -fv redis
+rm -rf /root/data/redis
 set -e
 
 # redis启动前需先将本目录下的redis目录上传到/root/config目录下

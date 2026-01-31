@@ -1,4 +1,4 @@
-GET {{prefix.auth}}/.well-known/oauth-authorization-server
+GET {{url_prefix.auth}}/.well-known/oauth-authorization-server
 
 ###
-GET {{prefix.auth}}/oauth2/jwks
+GET {{url_prefix.auth}}/oauth2/jwks

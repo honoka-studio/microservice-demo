@@ -1,7 +1,7 @@
 package de.honoka.demo.microservice.auth.security
 
 import de.honoka.sdk.spring.starter.core.springBean
-import de.honoka.sdk.spring.starter.redis.basic.DefaultRedisTemplate
+import de.honoka.sdk.spring.starter.redis.DefaultRedisTemplate
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -22,7 +22,7 @@ object LoginStatusFilter : OncePerRequestFilter() {
         request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
     ) {
         request.getHeader(LOGIN_ID_HEADER)?.let {
-            if(redisTemplate.hasKey("login_id:$it")) {
+            if(redisTemplate.hasKey("login_id:$it")!!) {
                 /*
                  * 这里必须使用三个参数的UsernamePasswordAuthenticationToken构造方法，因为两个参数的构造方法会
                  * 将对象中的authenticated字段设为false，而三个参数的构造方法会设为true。

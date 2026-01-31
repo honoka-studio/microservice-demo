@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 class MainConfig
 
 @Suppress("ArrayInDataClass")
-@ConfigurationProperties("app.gateway")
+@ConfigurationProperties("microservice-demo.gateway")
 data class MainProperties(
 
     var whiteList: Array<String> = arrayOf()

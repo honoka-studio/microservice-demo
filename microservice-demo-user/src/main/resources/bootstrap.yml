@@ -12,10 +12,12 @@ spring:
       - nacos:${spring.application.name}.yml?refreshEnabled=true
   cloud:
     nacos:
-      server-addr: ${app.nacos.server}
-      username: ${app.nacos.username}
-      password: ${app.nacos.password}
+      server-addr: ${microservice-demo.nacos.server}
+      username: ${microservice-demo.nacos.username}
+      password: ${microservice-demo.nacos.password}
       discovery:
-        namespace: ${app.nacos.namespace}
+        namespace: ${microservice-demo.nacos.namespace}
       config:
-        namespace: ${app.nacos.namespace}
+        namespace: ${microservice-demo.nacos.namespace}
+  flyway:
+    locations: classpath:db/migration

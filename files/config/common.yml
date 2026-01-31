@@ -1,7 +1,7 @@
 # 这个文件中的配置项在生产环境中应当采用其他方式传入
-app:
+microservice-demo:
   nacos:
-    server: vm.honoka.de:8848
+    server: localhost:8848
     username: root
     password: root123
     namespace: d3495abc-4a17-43cb-9c38-b72c4e8b1aba

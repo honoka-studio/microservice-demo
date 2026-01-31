@@ -1,10 +1,10 @@
-GET {{prefix.service1}}/hello
+GET {{url_prefix.service1}}/hello
 
 ###
-GET {{prefix.service1}}/redis/test1
+GET {{url_prefix.service1}}/redis/test1
 
 ###
-GET {{prefix.service1}}/redis/test2
+GET {{url_prefix.service1}}/redis/test2
 
 ###
-GET {{prefix.service1}}/redis/test3
+GET {{url_prefix.service1}}/redis/test3

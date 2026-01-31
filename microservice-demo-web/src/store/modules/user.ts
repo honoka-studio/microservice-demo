@@ -53,10 +53,9 @@ export const useUserStore = defineStore('pure-user', {
     /** 登入 */
     async loginByUsername(data: any) {
       let loginId = (await userApis.login(data)).data.loginId
-      console.log(loginId)
-      userApis.authorize(loginId).catch(error => {
-        console.log(error)
-      })
+      let authCode = (await userApis.authorize(loginId)).data.code
+      let token = (await userApis.token(authCode))
+      console.log(token)
       throw new Error('1')
       //return res
     },

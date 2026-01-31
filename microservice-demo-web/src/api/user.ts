@@ -45,19 +45,34 @@ export type RefreshTokenResult = {
 }
 
 const userApis = {
-  login: (data: any): Promise<any> => http.post('/user/login', { data }),
-  authorize(loginId: string): Promise<Response> {
+  login: (data: any): Promise<any> => http.post('/auth/login', { data }),
+  authorize(loginId: string): Promise<any> {
     const params = {
       'response_type': 'code',
-      'client_id': 'microservice-demo-gateway',
+      'client_id': 'microservice-demo-web',
       'scope': 'all',
-      'redirect_uri': 'http://localhost:8080/fakePath/oauth2/callback'
+      'redirect_uri': 'http://localhost:5173/api/auth/oauth2/callback'
     }
     const query = new URLSearchParams(params).toString()
-    return fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/oauth2/authorize?${query}`, {
+    return http.get(`/auth/oauth2/authorize?${query}`, {
       headers: {
         'X-Login-ID': loginId
       }
+    })
+  },
+  token(authCode: string): Promise<any> {
+    const params = {
+      'grant_type': 'authorization_code',
+      'code': authCode,
+      'redirect_uri': 'http://localhost:5173/api/auth/oauth2/callback'
+    }
+    const data = new URLSearchParams(params).toString()
+    return http.post('/auth/oauth2/token', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic bWljcm9zZXJ2aWNlLWRlbW8td2ViOm1pY3Jvc2VydmljZS1kZW1vLXdlYg=='
+      },
+      data
     })
   },
   refreshToken: (data: any): Promise<RefreshTokenResult> => http.post('/refresh-token', { data })

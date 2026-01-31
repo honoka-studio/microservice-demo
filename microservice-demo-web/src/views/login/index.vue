@@ -45,23 +45,16 @@ const onLogin = async(formEl: FormInstance | undefined) => {
   await formEl.validate(valid => {
     if(valid) {
       loading.value = true
-      useUserStoreHook()
-        .loginByUsername({
-          username: ruleForm.username,
-          password: ruleForm.password
-        })
-        .then(async () => {
-          return initRouter().then(() => {
-            disabled.value = true
-            router
-              .push(getTopMenu(true).path)
-              .finally(() => (disabled.value = false))
-          })
-        })
-        .catch(() => {})
-        .finally(() => {
-          loading.value = false
-        })
+      useUserStoreHook().loginByUsername({
+        username: ruleForm.username,
+        password: ruleForm.password
+      }).then(async () => {
+        await initRouter()
+        disabled.value = true
+        router.push(getTopMenu(true).path).finally(() => disabled.value = false)
+      }).catch(() => {}).finally(() => {
+        loading.value = false
+      })
     }
   })
 }
@@ -84,7 +77,7 @@ useEventListener(document, 'keydown', ({ code }) => {
 
 <template>
   <div class="select-none">
-    <img :src="bg" class="wave" />
+    <img :src="bg" class="wave" alt="" />
     <div class="flex-c absolute right-5 top-3">
       <!-- 主题 -->
       <el-switch

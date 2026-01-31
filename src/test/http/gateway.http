@@ -1,7 +1,7 @@
-GET {{prefix.gateway}}/auth/.well-known/oauth-authorization-server
+GET {{url_prefix.gateway}}/auth/.well-known/oauth-authorization-server
 
 ###
-POST {{prefix.gateway}}/user/register
+POST {{url_prefix.gateway}}/user/user/register
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ###
-POST {{prefix.gateway}}/user/login
+POST {{url_prefix.gateway}}/auth/login
 Content-Type: application/json
 
 {
@@ -18,8 +18,39 @@ Content-Type: application/json
   "password": "password1"
 }
 
-> {% client.global.set('access_token', response.body['data']['accessToken']) %}
+> {% client.global.set('login_id', response.body['data']['loginId']) %}
 
 ###
-GET {{prefix.gateway}}/service1/hello
-Authorization: Bearer {{access_token}}
+GET {{url_prefix.gateway}}/auth/oauth2/authorize
+    ?response_type=code
+    &client_id=microservice-demo-web
+    &scope=all
+    &redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Foauth2%2Fcallback
+X-Login-ID: {{login_id}}
+
+> {% client.global.set('auth_code', response.body['data']['code']) %}
+
+###
+POST {{url_prefix.gateway}}/auth/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+# Authorization的值为clientId与clientSecret（原文），用冒号拼接，然后base64编码
+Authorization: Basic bWljcm9zZXJ2aWNlLWRlbW8td2ViOm1pY3Jvc2VydmljZS1kZW1vLXdlYg==
+
+grant_type=authorization_code
+&code={{auth_code}}
+&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Foauth2%2Fcallback
+
+> {%
+  client.global.set('token_type', response.body['token_type'])
+  client.global.set('access_token', response.body['access_token'])
+%}
+
+###
+GET {{url_prefix.gateway}}/service1/hello
+Authorization: {{token_type}} {{access_token}}
+
+###
+GET {{url_prefix.gateway}}/service1/hello
+Authorization: {{token_type}} {{access_token}}
+
+> {% client.global.set('access_token', '') %}

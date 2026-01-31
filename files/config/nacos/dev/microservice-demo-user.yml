@@ -1,3 +1,7 @@
 spring:
   datasource:
-    url: ${app.datasource.url.prefix}microservice_demo_user${app.datasource.url.suffix}
+    url: ${microservice-demo.datasource.url.prefix}microservice_demo_user${microservice-demo.datasource.url.suffix}
+
+logging:
+  level:
+    de.honoka.demo.microservice.user.mapper: debug

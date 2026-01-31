@@ -14,6 +14,19 @@ data class UserRegisterResponse(
     var username: String? = null
 )
 
+data class UserQueryRequest(
+
+    var id: Long? = null,
+
+    var username: String? = null,
+
+    var enabled: Boolean? = null,
+
+    var locked: Boolean? = null,
+
+    var limit: Long? = null
+)
+
 data class UserLoginRequest(
 
     var username: String? = null,
@@ -23,9 +36,5 @@ data class UserLoginRequest(
 
 data class UserLoginResponse(
 
-    var tokenType: String? = null,
-
-    var accessToken: String? = null,
-
-    var refreshToken: String? = null
+    var loginId: String? = null
 )

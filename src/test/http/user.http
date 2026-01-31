@@ -1,0 +1,15 @@
+POST {{url_prefix.user}}/user/register
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password1"
+}
+
+###
+POST {{url_prefix.user}}/user/query
+Content-Type: application/json
+
+{
+  "username": "user1"
+}

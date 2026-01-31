@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 class MainConfig
 
-@ConfigurationProperties("app.auth")
+@ConfigurationProperties("microservice-demo.auth")
 data class MainProperties(
 
     var keyId: String? = null,

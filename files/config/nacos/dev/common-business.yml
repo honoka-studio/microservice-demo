@@ -5,7 +5,7 @@ spring:
     password: root123
   flyway:
     enabled: true
-    locations: classpath:flyway/sql
+    locations: classpath:flyway/sql/dev
     baseline-on-migrate: true
     baseline-version: 0.0.0
     validate-on-migrate: false

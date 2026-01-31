@@ -13,6 +13,8 @@ data class User(
 
     var password: String? = null,
 
+    var avatar: String? = null,
+
     var authorities: String? = null,
 
     var enabled: Boolean? = null,
