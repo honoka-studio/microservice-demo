@@ -2,3 +2,6 @@ GET {{url_prefix.auth}}/.well-known/oauth-authorization-server
 
 ###
 GET {{url_prefix.auth}}/oauth2/jwks
+
+###
+GET {{url_prefix.gateway}}/auth/.well-known/oauth-authorization-server

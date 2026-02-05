@@ -1,14 +1,27 @@
 spring:
+  data:
+    redis:
+      host: vm.honoka.de
+      port: 6379
+      username: redis
+      password: redis123
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+
+honoka:
+  redis:
+    enabled: true
+    key-prefix: microservice-demo
+    redisson:
+      enabled: true
 
 microservice-demo:
   datasource:
     url:
       prefix: jdbc:mysql://vm.honoka.de:3306/
       suffix: ?serverTimezone=GMT%2B8
-  security:
+  auth:
     jwt:
       issuer-uri: http://localhost:8080/auth
       jwk-set-uri: http://localhost:8080/auth/oauth2/jwks

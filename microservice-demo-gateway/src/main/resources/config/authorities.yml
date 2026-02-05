@@ -1,0 +1,11 @@
+honoka.webflux.security:
+  white-list:
+    - /auth/**
+    - /user/user/register
+  authorities:
+    - name: permission1:a1:a
+      paths:
+        - /service1/hello2
+    - name: permission1:b2:b
+      paths:
+        - /service1/hello3

@@ -10,12 +10,13 @@ object SecurityUtils {
 
     val passwordEncoder = BCryptPasswordEncoder()
 
-    val currentUserId: Long
+    val currentJwt: JWT?
         get() {
-            val requestAttributes = RequestContextHolder.currentRequestAttributes()
-                as ServletRequestAttributes
-            val token = requestAttributes.request.getHeader(HttpHeaders.AUTHORIZATION)
-                .split(" ")[1]
-            return JWT(token).payload.getClaim("sub").toString().toLong()
+            val requestAttributes = RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes
+            val token = requestAttributes.request.getHeader(HttpHeaders.AUTHORIZATION)?.split(" ")[1]
+            return token?.let { JWT(it) }
         }
+
+    val currentUserId: Long?
+        get() = currentJwt?.payload?.getClaim("sub")?.toString()?.toLong()
 }

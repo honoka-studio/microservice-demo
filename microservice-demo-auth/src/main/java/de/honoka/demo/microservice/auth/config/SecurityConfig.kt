@@ -6,14 +6,11 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import de.honoka.demo.microservice.auth.security.LoginStatusFilter
-import de.honoka.demo.microservice.common.config.SecurityBaseConfig
-import de.honoka.demo.microservice.common.config.SecurityBaseProperties
 import de.honoka.demo.microservice.common.util.SecurityUtils
 import de.honoka.sdk.spring.starter.security.DefaultAccessDeniedHandler
 import de.honoka.sdk.spring.starter.security.DefaultAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -30,12 +27,8 @@ import org.springframework.security.web.context.SecurityContextHolderFilter
 import java.io.File
 
 @EnableWebSecurity
-@Import(SecurityBaseConfig::class)
 @Configuration
-class SecurityConfig(
-    private val mainProperties: MainProperties,
-    private val securityBaseProperties: SecurityBaseProperties
-) {
+class SecurityConfig(private val mainProperties: MainProperties) {
 
     /**
      * OAuth2的相关配置
@@ -45,6 +38,9 @@ class SecurityConfig(
         authorizeHttpRequests {
             it.anyRequest().authenticated()
         }
+        //添加能够识别自定义登录态，并将其放入SecurityContextHolder中的处理器
+        //不可用OAuth2相关Filter来确定要添加的Filter所处的位置，因为OAuth2相关Filter在调用build时才会被添加
+        addFilterAfter(LoginStatusFilter, SecurityContextHolderFilter::class.java)
         /*
          * OAuth2AuthorizationServerConfigurer中有一个名为endpointsMatcher的局部变量，其包含了项目中定义
          * 的AuthorizationServerSettings所配置的OAuth2相关的几个接口的路径，如/oauth2/token等。
@@ -58,9 +54,6 @@ class SecurityConfig(
                 it.ignoringRequestMatchers(o.endpointsMatcher)
             }
         }
-        //添加能够识别自定义登录态，并将其放入SecurityContextHolder中的处理器
-        //不可用OAuth2相关Filter来确定要添加的Filter所处的位置，因为OAuth2相关Filter在调用build时才会被添加
-        addFilterAfter(LoginStatusFilter, SecurityContextHolderFilter::class.java)
         oauth2ResourceServer {
             //使用JWT处理接收到的Access Token
             it.jwt(Customizer.withDefaults())
@@ -93,6 +86,17 @@ class SecurityConfig(
 
     //JWK相关资料：https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-key-41
     /**
+     * 授权服务器配置
+     *
+     * 可配置：请求地址（与OAuth2相关的一些请求地址，默认为/oauth2/token等），JWT签发者（iss）等
+     */
+    @Bean
+    fun authorizationServerSettings(): AuthorizationServerSettings = AuthorizationServerSettings.builder().run {
+        issuer(mainProperties.jwt.issuerUri)
+        build()
+    }
+
+    /**
      * 配置JWK，为JWT提供加密密钥，用于加密、解密或签名、验签
      */
     @Bean
@@ -113,17 +117,6 @@ class SecurityConfig(
     @Bean
     fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder =
         OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource)
-
-    /**
-     * 授权服务器配置
-     *
-     * 可配置：请求地址（与OAuth2相关的一些请求地址，默认为/oauth2/token等），JWT签发者（iss）等
-     */
-    @Bean
-    fun authorizationServerSettings(): AuthorizationServerSettings = AuthorizationServerSettings.builder().run {
-        issuer(securityBaseProperties.jwt.issuerUri)
-        build()
-    }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder = SecurityUtils.passwordEncoder

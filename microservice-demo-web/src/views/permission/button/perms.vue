@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {hasPerms} from "@/utils/auth";
-import {useUserStoreHook} from "@/store/modules/user";
+import { useUserStoreHook } from '@/store/modules/user'
+import { hasPerms } from '@/utils/auth'
 
-const { permissions } = useUserStoreHook();
+const { permissions } = useUserStoreHook()
 
 defineOptions({
-  name: "PermissionButtonLogin"
-});
+  name: 'PermissionButtonLogin'
+})
 </script>
 
 <template>
@@ -21,9 +21,9 @@ defineOptions({
         <div class="card-header">组件方式判断权限</div>
       </template>
       <el-space wrap>
-        <Perms value="permission:btn:add">
+        <Perms value="permission1:a:a1">
           <el-button plain type="warning">
-            拥有code：'permission:btn:add' 权限可见
+            拥有code：'permission1:a:a1' 权限可见
           </el-button>
         </Perms>
         <Perms :value="['permission:btn:edit']">

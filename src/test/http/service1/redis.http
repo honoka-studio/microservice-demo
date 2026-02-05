@@ -1,5 +1,3 @@
-GET {{url_prefix.service1}}/hello
-
 ###
 GET {{url_prefix.service1}}/redis/test1
 

@@ -1,0 +1,46 @@
+POST {{url_prefix.gateway}}/user/user/register
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password1",
+  "authorities": [
+    "*:*:*"
+  ]
+}
+
+###
+POST {{url_prefix.gateway}}/user/user/register
+Content-Type: application/json
+
+{
+  "username": "user2",
+  "password": "password2",
+  "authorities": [
+    "permission1:a:*"
+  ]
+}
+
+###
+POST {{url_prefix.gateway}}/user/user/update
+Content-Type: application/json
+Authorization: {{token_type}} {{access_token}}
+
+{
+  "username": "user2",
+  "authorities": [
+    "permission1:b2:*"
+  ]
+}
+
+###
+POST {{url_prefix.user}}/user/query
+Content-Type: application/json
+
+{
+  "username": "user2"
+}
+
+###
+GET {{url_prefix.gateway}}/user/user/self
+Authorization: {{token_type}} {{access_token}}

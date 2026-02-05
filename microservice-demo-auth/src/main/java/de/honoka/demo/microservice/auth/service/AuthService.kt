@@ -1,20 +1,20 @@
 package de.honoka.demo.microservice.auth.service
 
 import cn.hutool.core.lang.UUID
+import de.honoka.demo.microservice.common.api.auth.dao.AuthRedisDao
+import de.honoka.demo.microservice.common.api.user.data.UserBasicInfo
 import de.honoka.demo.microservice.common.api.user.data.UserLoginRequest
 import de.honoka.demo.microservice.common.api.user.data.UserLoginResponse
 import de.honoka.demo.microservice.common.api.user.data.UserQueryRequest
-import de.honoka.demo.microservice.common.api.user.entity.User
 import de.honoka.demo.microservice.common.api.user.stub.UserControllerStub
 import de.honoka.demo.microservice.common.util.SecurityUtils
-import de.honoka.sdk.spring.starter.redis.DefaultRedisTemplate
+import de.honoka.sdk.util.kotlin.bean.copyTo
 import org.springframework.stereotype.Service
-import java.util.concurrent.TimeUnit
 
 @Service
 class AuthService(
     private val userControllerStub: UserControllerStub,
-    private val redisTemplate: DefaultRedisTemplate
+    private val authRedisDao: AuthRedisDao
 ) {
 
     fun login(params: UserLoginRequest): UserLoginResponse {
@@ -26,15 +26,24 @@ class AuthService(
         )
         if(invalid) error("用户名或密码错误")
         val loginId = UUID.randomUUID().toString()
-        setLoginId(loginId, user)
+        val userBasicInfo = user.copyTo<UserBasicInfo>()
+        authRedisDao.setLoginId(loginId, userBasicInfo)
         return UserLoginResponse(loginId)
     }
 
-    fun setLoginId(loginId: String, user: User) {
-        redisTemplate.opsForValue().set(
-            "login_id:$loginId", user.id!!, 10, TimeUnit.SECONDS
-        )
+    fun logout() {
+        val jwtPayloads = SecurityUtils.currentJwt?.payloads ?: return
+        val jti = jwtPayloads.getStr("jti").apply {
+            if(isNullOrBlank()) return
+        }
+        val exp = jwtPayloads.getLong("exp")
+        val currentTime = System.currentTimeMillis()
+        val timeout = if(exp != null) {
+            exp * 1000 - currentTime + 1000
+        } else {
+            301 * 1000L
+        }
+        if(timeout < 1) return
+        authRedisDao.setLogoutId(jti, timeout)
     }
-
-    fun findUserByLoginId(loginId: String): Long? = redisTemplate.opsForValue()["login_id:$loginId"] as Long?
 }

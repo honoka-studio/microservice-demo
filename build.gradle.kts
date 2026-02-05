@@ -23,9 +23,10 @@ val projects = classifyProjects {
 projects.jvm {
     applier {
         java
-        alias(libs.plugins.kotlin)
-        alias(libs.plugins.kotlin.kapt)
-        alias(libs.plugins.honoka.basic)
+        kotlin
+        `kotlin-kapt`
+        `kotlin-spring`
+        `honoka-basic`
     }
 
     group = rootProject.group
@@ -55,8 +56,7 @@ projects.jvm {
 //服务项目公共配置
 projects.app {
     applier {
-        alias(libs.plugins.kotlin.spring)
-        alias(libs.plugins.spring.boot)
+        `spring-boot`
     }
 
     dependencies {
@@ -65,7 +65,10 @@ projects.app {
         implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery")
         implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config")
         implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+        implementation("org.springframework.boot:spring-boot-starter-data-redis")
+        implementation(libs.redisson.spring.boot.starter)
         implementation(libs.honoka.spring.boot.starter)
+        implementation(project("common", true))
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
 }
@@ -79,9 +82,6 @@ projects.businessApp {
         implementation("org.flywaydb:flyway-mysql")
         implementation(libs.mybatis.plus.spring.boot.starter)
         implementation(libs.mybatis.plus.jsqlparser)
-        implementation("org.springframework.boot:spring-boot-starter-data-redis")
-        implementation(libs.redisson.spring.boot.starter)
-        implementation(project("common", true))
     }
 }
 

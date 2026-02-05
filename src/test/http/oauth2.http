@@ -1,21 +1,9 @@
-GET {{url_prefix.gateway}}/auth/.well-known/oauth-authorization-server
-
-###
-POST {{url_prefix.gateway}}/user/user/register
-Content-Type: application/json
-
-{
-  "username": "user1",
-  "password": "password1"
-}
-
-###
 POST {{url_prefix.gateway}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "user1",
-  "password": "password1"
+  "username": "user2",
+  "password": "password2"
 }
 
 > {% client.global.set('login_id', response.body['data']['loginId']) %}
@@ -34,7 +22,7 @@ X-Login-ID: {{login_id}}
 POST {{url_prefix.gateway}}/auth/oauth2/token
 Content-Type: application/x-www-form-urlencoded
 # Authorization的值为clientId与clientSecret（原文），用冒号拼接，然后base64编码
-Authorization: Basic bWljcm9zZXJ2aWNlLWRlbW8td2ViOm1pY3Jvc2VydmljZS1kZW1vLXdlYg==
+Authorization: Basic {{oauth2_api_auth}}
 
 grant_type=authorization_code
 &code={{auth_code}}
@@ -47,13 +35,9 @@ grant_type=authorization_code
 %}
 
 ###
-GET {{url_prefix.gateway}}/service1/hello
-Authorization: {{token_type}} {{access_token}}
-
-###
 POST {{url_prefix.gateway}}/auth/oauth2/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic bWljcm9zZXJ2aWNlLWRlbW8td2ViOm1pY3Jvc2VydmljZS1kZW1vLXdlYg==
+Authorization: Basic {{oauth2_api_auth}}
 
 grant_type=refresh_token
 &refresh_token={{refresh_token}}
@@ -61,14 +45,17 @@ grant_type=refresh_token
 > {%
   client.global.set('token_type', response.body['token_type'])
   client.global.set('access_token', response.body['access_token'])
+  client.global.set('refresh_token', response.body['refresh_token'])
 %}
 
 ###
-GET {{url_prefix.gateway}}/service1/hello
-Authorization: {{token_type}} {{access_token}}
+POST {{url_prefix.gateway}}/auth/oauth2/revoke
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {{oauth2_api_auth}}
 
-> {% client.global.set('access_token', '') %}
+token_type_hint=refresh_token
+&token={{refresh_token}}
 
 ###
-GET {{url_prefix.gateway}}/user/user/self
+GET {{url_prefix.gateway}}/auth/logout
 Authorization: {{token_type}} {{access_token}}

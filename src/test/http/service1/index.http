@@ -1,0 +1,11 @@
+###
+GET {{url_prefix.gateway}}/service1/hello
+Authorization: {{token_type}} {{access_token}}
+
+###
+GET {{url_prefix.gateway}}/service1/hello2
+Authorization: {{token_type}} {{access_token}}
+
+###
+GET {{url_prefix.gateway}}/service1/hello3
+Authorization: {{token_type}} {{access_token}}

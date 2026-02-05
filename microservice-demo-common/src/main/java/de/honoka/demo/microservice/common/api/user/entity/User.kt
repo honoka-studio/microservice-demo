@@ -2,26 +2,13 @@ package de.honoka.demo.microservice.common.api.user.entity
 
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableId
-import java.util.*
+import de.honoka.sdk.spring.starter.security.DefaultUser
 
 data class User(
 
+    var avatar: String? = null
+) : DefaultUser() {
+
     @TableId(type = IdType.ASSIGN_ID)
-    var id: Long? = null,
-
-    var username: String? = null,
-
-    var password: String? = null,
-
-    var avatar: String? = null,
-
-    var authorities: String? = null,
-
-    var enabled: Boolean? = null,
-
-    var locked: Boolean? = null,
-
-    var expireAt: Date? = null,
-
-    var credentialsExpireAt: Date? = null
-)
+    override var id: Long? = null
+}

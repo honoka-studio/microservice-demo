@@ -1,9 +1,9 @@
 package de.honoka.demo.microservice.user.config
 
-import de.honoka.demo.microservice.common.config.FeignBaseConfig
+import de.honoka.demo.microservice.common.config.CommonBaseConfig
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 
-@Import(FeignBaseConfig::class)
+@Import(CommonBaseConfig::class)
 @Configuration
 class MainConfig

@@ -11,20 +11,9 @@ spring:
     validate-on-migrate: false
     clean-disabled: true
     clean-on-validation-error: false
-  data:
-    redis:
-      host: vm.honoka.de
-      port: 6379
-      username: redis
-      password: redis123
 
 honoka:
   mybatis:
-    enabled: true
-  redis:
-    enabled: true
-    key-prefix: microservice-demo
-  redisson:
     enabled: true
 
 mybatis-plus:

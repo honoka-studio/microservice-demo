@@ -72,15 +72,14 @@ class PureHttp {
               if(!PureHttp.isRefreshing) {
                 PureHttp.isRefreshing = true
                 // token过期刷新
-                useUserStoreHook()
-                  .handRefreshToken({ refreshToken: data.refreshToken })
-                  .then(res => {
-                    PureHttp.requests.forEach(cb => cb(res.data.accessToken))
-                    PureHttp.requests = []
-                  })
-                  .finally(() => {
-                    PureHttp.isRefreshing = false
-                  })
+                useUserStoreHook().handRefreshToken({ refreshToken: data.refreshToken }).then(res => {
+                  PureHttp.requests.forEach(cb => cb(res.data.accessToken))
+                  PureHttp.requests = []
+                }).catch(() => {
+                  useUserStoreHook().logOut()
+                }).finally(() => {
+                  PureHttp.isRefreshing = false
+                })
               }
               resolve(PureHttp.retryOriginalRequest(config))
             } else {

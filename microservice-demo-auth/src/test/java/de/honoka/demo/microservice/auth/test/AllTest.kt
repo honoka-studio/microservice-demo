@@ -67,6 +67,7 @@ class AllSpringTest {
             val tokenSettings = TokenSettings.builder().run {
                 accessTokenTimeToLive(Duration.ofMinutes(5))
                 refreshTokenTimeToLive(Duration.ofHours(1))
+                reuseRefreshTokens(false)
                 build()
             }
             clientSettings(clientSettings)
