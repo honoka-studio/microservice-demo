@@ -1,8 +1,9 @@
+import { getToken } from '@/utils/auth'
 import { http } from '@/utils/http'
 
 const userApis = {
-  login: (data: any): Promise<any> => http.post('/auth/login', { data }),
-  authorize(loginId: string): Promise<any> {
+  login: (data: any) => http.post('/auth/login', { data }),
+  authorize(loginId: string) {
     const query = new URLSearchParams({
       'response_type': 'code',
       'client_id': 'microservice-demo-web',
@@ -15,7 +16,7 @@ const userApis = {
       }
     })
   },
-  token: (authCode: string): Promise<any> => http.post('/auth/oauth2/token', {
+  token: (authCode: string) => http.post('/auth/oauth2/token', {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': import.meta.env.VITE_OAUTH2_API_AUTH_HEADER
@@ -26,7 +27,7 @@ const userApis = {
       'redirect_uri': import.meta.env.VITE_OAUTH2_CALLBACK
     }).toString()
   }),
-  refreshToken: (refreshToken: string): Promise<any> => http.post('/auth/oauth2/token', {
+  refreshToken: (refreshToken: string) => http.post('/auth/oauth2/token', {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': import.meta.env.VITE_OAUTH2_API_AUTH_HEADER
@@ -36,7 +37,18 @@ const userApis = {
       'refresh_token': refreshToken
     }).toString()
   }),
-  self(token?: string): Promise<any> {
+  logout: () => http.get('/auth/logout'),
+  revokeRefreshToken: () => http.post('/auth/oauth2/revoke', {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': import.meta.env.VITE_OAUTH2_API_AUTH_HEADER
+    },
+    data: new URLSearchParams({
+      'token_type_hint': 'refresh_token',
+      'token': getToken().refreshToken
+    }).toString()
+  }),
+  self(token?: string) {
     const headers = {}
     if(token) {
       headers['Authorization'] = `Bearer ${token}`

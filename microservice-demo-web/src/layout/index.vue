@@ -1,41 +1,41 @@
 <script setup lang="ts">
-  import "animate.css";
-  // 引入 src/components/ReIcon/src/offlineIcon.ts 文件中所有使用addIcon添加过的本地图标
-  import "@/components/ReIcon/src/offlineIcon";
-  import {setType} from "./types";
-  import {useLayout} from "./hooks/useLayout";
-  import {useAppStoreHook} from "@/store/modules/app";
-  import {useSettingStoreHook} from "@/store/modules/settings";
-  import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
-  import {computed, defineComponent, h, onBeforeMount, onMounted, reactive, ref} from "vue";
-  import {deviceDetection, useDark, useGlobal, useResizeObserver} from "@pureadmin/utils";
+import 'animate.css'
+// 引入 src/components/ReIcon/src/offlineIcon.ts 文件中所有使用addIcon添加过的本地图标
+import '@/components/ReIcon/src/offlineIcon'
+import BackTopIcon from '@/assets/svg/back_top.svg?component'
+import { useDataThemeChange } from '@/layout/hooks/useDataThemeChange'
+import { useAppStoreHook } from '@/store/modules/app'
+import { useSettingStoreHook } from '@/store/modules/settings'
+import { deviceDetection, useDark, useGlobal, useResizeObserver } from '@pureadmin/utils'
+import { computed, defineComponent, h, onBeforeMount, onMounted, reactive, ref } from 'vue'
+import LayContent from './components/lay-content/index.vue'
+import LayNavbar from './components/lay-navbar/index.vue'
+import LaySetting from './components/lay-setting/index.vue'
+import NavHorizontal from './components/lay-sidebar/NavHorizontal.vue'
+import NavVertical from './components/lay-sidebar/NavVertical.vue'
 
-  import LayTag from "./components/lay-tag/index.vue";
-  import LayNavbar from "./components/lay-navbar/index.vue";
-  import LayContent from "./components/lay-content/index.vue";
-  import LaySetting from "./components/lay-setting/index.vue";
-  import NavVertical from "./components/lay-sidebar/NavVertical.vue";
-  import NavHorizontal from "./components/lay-sidebar/NavHorizontal.vue";
-  import BackTopIcon from "@/assets/svg/back_top.svg?component";
+import LayTag from './components/lay-tag/index.vue'
+import { useLayout } from './hooks/useLayout'
+import { setType } from './types'
 
-  const appWrapperRef = ref();
-const { isDark } = useDark();
-const { layout } = useLayout();
-const isMobile = deviceDetection();
-const pureSetting = useSettingStoreHook();
-const { $storage } = useGlobal<GlobalPropertiesApi>();
+const appWrapperRef = ref()
+const { isDark } = useDark()
+const { layout } = useLayout()
+const isMobile = deviceDetection()
+const pureSetting = useSettingStoreHook()
+const { $storage } = useGlobal<GlobalPropertiesApi>()
 
 const set: setType = reactive({
   sidebar: computed(() => {
-    return useAppStoreHook().sidebar;
+    return useAppStoreHook().sidebar
   }),
 
   device: computed(() => {
-    return useAppStoreHook().device;
+    return useAppStoreHook().device
   }),
 
   fixedHeader: computed(() => {
-    return pureSetting.fixedHeader;
+    return pureSetting.fixedHeader
   }),
 
   classes: computed(() => {
@@ -43,17 +43,17 @@ const set: setType = reactive({
       hideSidebar: !set.sidebar.opened,
       openSidebar: set.sidebar.opened,
       withoutAnimation: set.sidebar.withoutAnimation,
-      mobile: set.device === "mobile"
-    };
+      mobile: set.device === 'mobile'
+    }
   }),
 
   hideTabs: computed(() => {
-    return $storage?.configure.hideTabs;
+    return $storage?.configure.hideTabs
   })
-});
+})
 
 function setTheme(layoutModel: string) {
-  window.document.body.setAttribute("layout", layoutModel);
+  window.document.body.setAttribute('layout', layoutModel)
   $storage.layout = {
     layout: `${layoutModel}`,
     theme: $storage.layout?.theme,
@@ -62,85 +62,85 @@ function setTheme(layoutModel: string) {
     epThemeColor: $storage.layout?.epThemeColor,
     themeColor: $storage.layout?.themeColor,
     overallStyle: $storage.layout?.overallStyle
-  };
+  }
 }
 
 function toggle(device: string, bool: boolean) {
-  useAppStoreHook().toggleDevice(device);
-  useAppStoreHook().toggleSideBar(bool, "resize");
+  useAppStoreHook().toggleDevice(device)
+  useAppStoreHook().toggleSideBar(bool, 'resize')
 }
 
 // 判断是否可自动关闭菜单栏
-let isAutoCloseSidebar = true;
+let isAutoCloseSidebar = true
 
 useResizeObserver(appWrapperRef, entries => {
-  if (isMobile) return;
-  const entry = entries[0];
-  const [{ inlineSize: width, blockSize: height }] = entry.borderBoxSize;
-  useAppStoreHook().setViewportSize({ width, height });
-  width <= 760 ? setTheme("vertical") : setTheme(useAppStoreHook().layout);
+  if(isMobile) return
+  const entry = entries[0]
+  const [{ inlineSize: width, blockSize: height }] = entry.borderBoxSize
+  useAppStoreHook().setViewportSize({ width, height })
+  width <= 760 ? setTheme('vertical') : setTheme(useAppStoreHook().layout)
   /** width app-wrapper类容器宽度
    * 0 < width <= 760 隐藏侧边栏
    * 760 < width <= 990 折叠侧边栏
    * width > 990 展开侧边栏
    */
-  if (width > 0 && width <= 760) {
-    toggle("mobile", false);
-    isAutoCloseSidebar = true;
-  } else if (width > 760 && width <= 990) {
-    if (isAutoCloseSidebar) {
-      toggle("desktop", false);
-      isAutoCloseSidebar = false;
+  if(width > 0 && width <= 760) {
+    toggle('mobile', false)
+    isAutoCloseSidebar = true
+  } else if(width > 760 && width <= 990) {
+    if(isAutoCloseSidebar) {
+      toggle('desktop', false)
+      isAutoCloseSidebar = false
     }
-  } else if (width > 990 && !set.sidebar.isClickCollapse) {
-    toggle("desktop", true);
-    isAutoCloseSidebar = true;
+  } else if(width > 990 && !set.sidebar.isClickCollapse) {
+    toggle('desktop', true)
+    isAutoCloseSidebar = true
   } else {
-    toggle("desktop", false);
-    isAutoCloseSidebar = false;
+    toggle('desktop', false)
+    isAutoCloseSidebar = false
   }
-});
+})
 
 onMounted(() => {
-  if (isMobile) {
-    toggle("mobile", false);
+  if(isMobile) {
+    toggle('mobile', false)
   }
-});
+})
 
 onBeforeMount(() => {
-  useDataThemeChange().dataThemeChange($storage.layout?.overallStyle);
-});
+  useDataThemeChange().dataThemeChange($storage.layout?.overallStyle)
+})
 
 const LayHeader = defineComponent({
-  name: "LayHeader",
+  name: 'LayHeader',
   render() {
     return h(
-      "div",
+      'div',
       {
-        class: { "fixed-header": set.fixedHeader },
+        class: { 'fixed-header': set.fixedHeader },
         style: [
-          set.hideTabs && layout.value.includes("horizontal")
+          set.hideTabs && layout.value.includes('horizontal')
             ? isDark.value
-              ? "box-shadow: 0 1px 4px #0d0d0d"
-              : "box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08)"
-            : ""
+              ? 'box-shadow: 0 1px 4px #0d0d0d'
+              : 'box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08)'
+            : ''
         ]
       },
       {
         default: () => [
           !pureSetting.hiddenSideBar &&
-          (layout.value.includes("vertical") || layout.value.includes("mix"))
+          (layout.value.includes('vertical') || layout.value.includes('mix'))
             ? h(LayNavbar)
             : null,
-          !pureSetting.hiddenSideBar && layout.value.includes("horizontal")
+          !pureSetting.hiddenSideBar && layout.value.includes('horizontal')
             ? h(NavHorizontal)
             : null,
           h(LayTag)
         ]
       }
-    );
+    )
   }
-});
+})
 </script>
 
 <template>

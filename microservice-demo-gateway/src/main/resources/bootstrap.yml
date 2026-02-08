@@ -32,7 +32,3 @@ honoka:
     enabled: true
     gateway:
       enabled: true
-
-logging:
-  level:
-    org.springframework.web.server.adapter.DefaultServerWebExchange: off

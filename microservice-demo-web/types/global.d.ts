@@ -5,56 +5,40 @@ import type { ECharts } from 'echarts'
  * 全局类型声明，无需引入直接在 `.vue` 、`.ts` 、`.tsx` 文件使用即可获得类型提示
  */
 declare global {
-  /**
-   * 平台的名称、版本、运行所需的`node`和`pnpm`版本、依赖、最后构建时间的类型提示
-   */
-  const __APP_INFO__: {
-    pkg: {
-      name: string;
-      version: string;
-      engines: {
-        node: string;
-        pnpm: string;
-      };
-      dependencies: Recordable<string>;
-      devDependencies: Recordable<string>;
-    };
-    lastBuildTime: string;
-  }
 
   /**
    * Window 的类型提示
    */
   interface Window {
     // Global vue app instance
-    __APP__: App<Element>;
+    __APP__: App<Element>
 
-    webkitCancelAnimationFrame: (handle: number) => void;
+    webkitCancelAnimationFrame: (handle: number) => void
 
-    mozCancelAnimationFrame: (handle: number) => void;
+    mozCancelAnimationFrame: (handle: number) => void
 
-    oCancelAnimationFrame: (handle: number) => void;
+    oCancelAnimationFrame: (handle: number) => void
 
-    msCancelAnimationFrame: (handle: number) => void;
+    msCancelAnimationFrame: (handle: number) => void
 
-    webkitRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    webkitRequestAnimationFrame: (callback: FrameRequestCallback) => number
 
-    mozRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    mozRequestAnimationFrame: (callback: FrameRequestCallback) => number
 
-    oRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    oRequestAnimationFrame: (callback: FrameRequestCallback) => number
 
-    msRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    msRequestAnimationFrame: (callback: FrameRequestCallback) => number
   }
 
   /**
    * Document 的类型提示
    */
   interface Document {
-    webkitFullscreenElement?: Element;
+    webkitFullscreenElement?: Element
 
-    mozFullScreenElement?: Element;
+    mozFullScreenElement?: Element
 
-    msFullscreenElement?: Element;
+    msFullscreenElement?: Element
   }
 
   /**
@@ -73,76 +57,76 @@ declare global {
 
     VITE_OAUTH2_API_AUTH_HEADER: string
 
-    VITE_PUBLIC_PATH: string;
+    VITE_PUBLIC_PATH: string
 
-    VITE_ROUTER_HISTORY: string;
+    VITE_ROUTER_HISTORY: string
 
-    VITE_CDN: boolean;
+    VITE_CDN: boolean
 
-    VITE_HIDE_HOME: string;
+    VITE_HIDE_HOME: string
 
-    VITE_COMPRESSION: ViteCompression;
+    VITE_COMPRESSION: ViteCompression
   }
 
   /**
    *  继承 `@pureadmin/table` 的 `TableColumns` ，方便全局直接调用
    */
-  type TableColumnList = Array<TableColumns>;
+  type TableColumnList = Array<TableColumns>
 
   /**
    * 对应 `public/platform-config.json` 文件的类型声明
    * @see {@link https://pure-admin.cn/pages/config/#platform-config-json}
    */
   interface PlatformConfigs {
-    Title?: string;
+    Title?: string
 
-    FixedHeader?: boolean;
+    FixedHeader?: boolean
 
-    HiddenSideBar?: boolean;
+    HiddenSideBar?: boolean
 
-    MultiTagsCache?: boolean;
+    MultiTagsCache?: boolean
 
-    MaxTagsLevel?: number;
+    MaxTagsLevel?: number
 
-    KeepAlive?: boolean;
+    KeepAlive?: boolean
 
-    Locale?: string;
+    Locale?: string
 
-    Layout?: string;
+    Layout?: string
 
-    Theme?: string;
+    Theme?: string
 
-    DarkMode?: boolean;
+    DarkMode?: boolean
 
-    OverallStyle?: string;
+    OverallStyle?: string
 
-    Grey?: boolean;
+    Grey?: boolean
 
-    Weak?: boolean;
+    Weak?: boolean
 
-    HideTabs?: boolean;
+    HideTabs?: boolean
 
-    HideFooter?: boolean;
+    HideFooter?: boolean
 
-    Stretch?: boolean | number;
+    Stretch?: boolean | number
 
-    SidebarStatus?: boolean;
+    SidebarStatus?: boolean
 
-    EpThemeColor?: string;
+    EpThemeColor?: string
 
-    ShowLogo?: boolean;
+    ShowLogo?: boolean
 
-    ShowModel?: string;
+    ShowModel?: string
 
-    MenuArrowIconNoTransition?: boolean;
+    MenuArrowIconNoTransition?: boolean
 
-    CachingAsyncRoutes?: boolean;
+    CachingAsyncRoutes?: boolean
 
-    TooltipEffect?: Effect;
+    TooltipEffect?: Effect
 
-    ResponsiveStorageNameSpace?: string;
+    ResponsiveStorageNameSpace?: string
 
-    MenuSearchHistory?: number;
+    MenuSearchHistory?: number
   }
 
   /**
@@ -150,49 +134,49 @@ declare global {
    * @see {@link https://pure-admin.cn/pages/config/#platform-config-json}
    */
   interface StorageConfigs {
-    version?: string;
+    version?: string
 
-    title?: string;
+    title?: string
 
-    fixedHeader?: boolean;
+    fixedHeader?: boolean
 
-    hiddenSideBar?: boolean;
+    hiddenSideBar?: boolean
 
-    multiTagsCache?: boolean;
+    multiTagsCache?: boolean
 
-    keepAlive?: boolean;
+    keepAlive?: boolean
 
-    locale?: string;
+    locale?: string
 
-    layout?: string;
+    layout?: string
 
-    theme?: string;
+    theme?: string
 
-    darkMode?: boolean;
+    darkMode?: boolean
 
-    grey?: boolean;
+    grey?: boolean
 
-    weak?: boolean;
+    weak?: boolean
 
-    hideTabs?: boolean;
+    hideTabs?: boolean
 
-    hideFooter?: boolean;
+    hideFooter?: boolean
 
-    sidebarStatus?: boolean;
+    sidebarStatus?: boolean
 
-    epThemeColor?: string;
+    epThemeColor?: string
 
-    themeColor?: string;
+    themeColor?: string
 
-    overallStyle?: string;
+    overallStyle?: string
 
-    showLogo?: boolean;
+    showLogo?: boolean
 
-    showModel?: string;
+    showModel?: string
 
-    menuSearchHistory?: number;
+    menuSearchHistory?: number
 
-    username?: string;
+    username?: string
   }
 
   /**
@@ -200,42 +184,42 @@ declare global {
    */
   interface ResponsiveStorage {
     locale: {
-      locale?: string;
-    };
+      locale?: string
+    }
 
     layout: {
-      layout?: string;
-      theme?: string;
-      darkMode?: boolean;
-      sidebarStatus?: boolean;
-      epThemeColor?: string;
-      themeColor?: string;
-      overallStyle?: string;
-    };
+      layout?: string
+      theme?: string
+      darkMode?: boolean
+      sidebarStatus?: boolean
+      epThemeColor?: string
+      themeColor?: string
+      overallStyle?: string
+    }
 
     configure: {
-      grey?: boolean;
-      weak?: boolean;
-      hideTabs?: boolean;
-      hideFooter?: boolean;
-      showLogo?: boolean;
-      showModel?: string;
-      multiTagsCache?: boolean;
-      stretch?: boolean | number;
-    };
+      grey?: boolean
+      weak?: boolean
+      hideTabs?: boolean
+      hideFooter?: boolean
+      showLogo?: boolean
+      showModel?: string
+      multiTagsCache?: boolean
+      stretch?: boolean | number
+    }
 
-    tags?: Array<any>;
+    tags?: Array<any>
   }
 
   /**
    * 平台里所有组件实例都能访问到的全局属性对象的类型声明
    */
   interface GlobalPropertiesApi {
-    $echarts: ECharts;
+    $echarts: ECharts
 
-    $storage: ResponsiveStorage;
+    $storage: ResponsiveStorage
 
-    $config: PlatformConfigs;
+    $config: PlatformConfigs
   }
 
   /**
@@ -244,11 +228,11 @@ declare global {
   interface Element {
     // v-ripple 作用于 src/directives/ripple/index.ts 文件
     _ripple?: {
-      enabled?: boolean;
-      centered?: boolean;
-      class?: string;
-      circle?: boolean;
-      touched?: boolean;
-    };
+      enabled?: boolean
+      centered?: boolean
+      class?: string
+      circle?: boolean
+      touched?: boolean
+    }
   }
 }

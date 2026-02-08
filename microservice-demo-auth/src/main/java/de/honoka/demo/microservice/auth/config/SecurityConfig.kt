@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import de.honoka.demo.microservice.auth.MainProperties
 import de.honoka.demo.microservice.auth.security.LoginStatusFilter
 import de.honoka.demo.microservice.common.util.SecurityUtils
 import de.honoka.sdk.spring.starter.security.DefaultAccessDeniedHandler

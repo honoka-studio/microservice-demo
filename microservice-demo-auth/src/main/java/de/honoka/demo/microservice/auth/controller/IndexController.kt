@@ -4,7 +4,7 @@ import de.honoka.demo.microservice.auth.service.AuthService
 import de.honoka.demo.microservice.common.api.user.data.UserLoginRequest
 import de.honoka.demo.microservice.common.api.user.data.UserLoginResponse
 import de.honoka.sdk.spring.starter.various.toApiResponse
-import de.honoka.sdk.util.web.ApiResponse
+import de.honoka.sdk.util.kotlin.web.ApiResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

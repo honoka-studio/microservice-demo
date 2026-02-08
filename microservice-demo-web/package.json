@@ -15,32 +15,7 @@
     "clean:cache": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm store prune && pnpm install",
     "preinstall": "npx only-allow pnpm"
   },
-  "keywords": [
-    "pure-admin-thin",
-    "vue-pure-admin",
-    "element-plus",
-    "tailwindcss",
-    "pure-admin",
-    "typescript",
-    "pinia",
-    "vue3",
-    "vite",
-    "esm"
-  ],
-  "homepage": "https://github.com/pure-admin/pure-admin-thin",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pure-admin/pure-admin-thin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/pure-admin/vue-pure-admin/issues"
-  },
-  "license": "MIT",
-  "author": {
-    "name": "xiaoxian521",
-    "email": "pureadmin@163.com",
-    "url": "https://github.com/xiaoxian521"
-  },
+  "homepage": "https://github.com/pure-admin/pure-admin-thin/tree/v6.2.0",
   "dependencies": {
     "@pureadmin/descriptions": "^1.2.1",
     "@pureadmin/table": "^3.3.0",

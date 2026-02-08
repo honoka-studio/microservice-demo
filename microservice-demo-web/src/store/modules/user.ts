@@ -57,11 +57,17 @@ export const useUserStore = defineStore('pure-user', {
       let token = (await userApis.token(authCode))
       let userInfo = (await userApis.self(token['access_token'])).data
       let result = this.getLoginResponse(userInfo, token)
-      setToken(result.data)
+      setToken(result)
       return result
     },
-    /** 前端登出（不调用接口） */
-    async logOut() {
+    /** 前端登出 */
+    async logout() {
+      try {
+        await userApis.logout()
+        await userApis.revokeRefreshToken()
+      } catch(e) {
+        //ignore
+      }
       this.username = ''
       this.roles = []
       this.permissions = []
@@ -74,23 +80,19 @@ export const useUserStore = defineStore('pure-user', {
     async handRefreshToken(data: any) {
       let token = await userApis.refreshToken(data.refreshToken)
       let result = this.getLoginResponse({}, token)
-      setToken(result.data)
+      setToken(result)
       return result
     },
     getLoginResponse(userInfo: any, token: any): any {
       const result = {
-        success: true,
-        data: {
-          ...userInfo,
-          nickname: userInfo.username,
-          roles: ['admin'],
-          permissions: userInfo.authorities,
-          accessToken: token['access_token'],
-          refreshToken: token['refresh_token']
-        }
+        ...userInfo,
+        nickname: userInfo.username,
+        permissions: userInfo.authorities,
+        accessToken: token['access_token'],
+        refreshToken: token['refresh_token']
       }
       let expires = new Date().getTime() + token['expires_in'] * 1000
-      result.data.expires = new Date(expires).toLocaleString()
+      result.expires = new Date(expires).toLocaleString()
       return result
     }
   }

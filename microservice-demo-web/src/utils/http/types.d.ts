@@ -19,4 +19,8 @@ export interface PureHttpRequestConfig extends AxiosRequestConfig {
   beforeRequestCallback?: (request: PureHttpRequestConfig) => void
 
   beforeResponseCallback?: (response: PureHttpResponse) => void
+
+  showMsgOnError?: boolean
+
+  ignore401?: boolean
 }

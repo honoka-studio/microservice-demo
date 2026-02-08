@@ -1,7 +1,7 @@
 package de.honoka.demo.microservice.service1.controller
 
 import de.honoka.sdk.spring.starter.various.toApiResponse
-import de.honoka.sdk.util.web.ApiResponse
+import de.honoka.sdk.util.kotlin.web.ApiResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 

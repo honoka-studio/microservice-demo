@@ -3,9 +3,9 @@ honoka.webflux.security:
     - /auth/**
     - /user/user/register
   authorities:
-    - name: permission1:a1:a
+    - permission: permission1:a1:a
       paths:
         - /service1/hello2
-    - name: permission1:b2:b
+    - role: user2
       paths:
         - /service1/hello3

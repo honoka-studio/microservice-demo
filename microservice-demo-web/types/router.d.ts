@@ -1,7 +1,7 @@
 // 全局路由类型声明
 
-import type {RouteComponent, RouteLocationNormalized} from "vue-router";
-import type {FunctionalComponent} from "vue";
+import type { FunctionalComponent } from 'vue'
+import type { RouteComponent, RouteLocationNormalized } from 'vue-router'
 
 declare global {
   interface ToRouteType extends RouteLocationNormalized {
@@ -86,7 +86,7 @@ declare global {
     /** 路由名字（保持唯一）`可选` */
     name?: string;
     /** `Layout`组件 `可选` */
-    component?: RouteComponent;
+    component?: string | RouteComponent;
     /** 路由重定向 `可选` */
     redirect?: string;
     meta?: {

@@ -71,7 +71,7 @@ const wrapperEnv = (envConf: Recordable): ViteEnv => {
 const fileListTotal: number[] = []
 
 /** 获取指定文件夹中所有文件的总大小 */
-const getPackageSize = options => {
+const getPackageSize = (options: any) => {
   const { folder = 'dist', callback, format = true } = options
   readdir(folder, (err, files: string[]) => {
     if(err) throw err

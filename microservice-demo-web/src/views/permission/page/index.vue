@@ -1,44 +1,43 @@
 <script setup lang="ts">
-import {initRouter} from "@/router/utils";
-import {storageLocal} from "@pureadmin/utils";
-import {computed, type CSSProperties, ref} from "vue";
-import {useUserStoreHook} from "@/store/modules/user";
-import {usePermissionStoreHook} from "@/store/modules/permission";
+import { initRouter } from '@/router/utils'
+import { usePermissionStoreHook } from '@/store/modules/permission'
+import { useUserStoreHook } from '@/store/modules/user'
+import { storageLocal } from '@pureadmin/utils'
+import { computed, type CSSProperties, ref } from 'vue'
 
 defineOptions({
-  name: "PermissionPage"
-});
+  name: 'PermissionPage'
+})
 
 const elStyle = computed((): CSSProperties => {
   return {
-    width: "85vw",
-    justifyContent: "start"
-  };
-});
+    width: '85vw',
+    justifyContent: 'start'
+  }
+})
 
-const username = ref(useUserStoreHook()?.username);
+const username = ref(useUserStoreHook()?.username)
 
 const options = [
   {
-    value: "admin",
-    label: "管理员角色"
+    value: 'admin',
+    label: '管理员角色'
   },
   {
-    value: "common",
-    label: "普通角色"
+    value: 'common',
+    label: '普通角色'
   }
-];
+]
 
 function onChange() {
-  useUserStoreHook()
-    .loginByUsername({ username: username.value, password: "admin123" })
-    .then(res => {
-      if (res.success) {
-        storageLocal().removeItem("async-routes");
-        usePermissionStoreHook().clearAllCachePage();
-        initRouter();
-      }
-    });
+  useUserStoreHook().loginByUsername({
+    username: username.value,
+    password: 'admin123'
+  }).then(() => {
+    storageLocal().removeItem('async-routes')
+    usePermissionStoreHook().clearAllCachePage()
+    initRouter()
+  })
 }
 </script>
 
@@ -54,7 +53,7 @@ function onChange() {
           <span>当前角色：{{ username }}</span>
         </div>
       </template>
-      <el-select v-model="username" class="w-[160px]!" @change="onChange">
+      <el-select v-model="username" class="w-40!" @change="onChange">
         <el-option
           v-for="item in options"
           :key="item.value"

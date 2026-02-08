@@ -1,5 +1,5 @@
 // 动态路由
-import { getAsyncRoutes } from '@/api/routes'
+import routeApis from '@/api/route'
 import { getConfig } from '@/config'
 import { type menuType, routerArrays } from '@/layout/types'
 import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
@@ -18,14 +18,14 @@ import {
 } from 'vue-router'
 import { router } from './index'
 
-const IFrame = () => import('@/layout/frame.vue')
+const IFrame = (): any => import('@/layout/frame.vue')
 // https://cn.vitejs.dev/guide/features.html#glob-import
-const modulesRoutes = import.meta.glob('/src/views/**/*.{vue,tsx}')
+const modulesRoutes: any = import.meta.glob('/src/views/**/*.{vue,tsx}')
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo
   return isAllEmpty(parentId) ?
-    isAllEmpty(meta?.rank) || (meta?.rank === 0 && name !== 'Home' && path !== '/') :
+    isAllEmpty(meta?.rank) || (meta?.rank === 0 && name !== 'Index' && path !== '/') :
     false
 }
 
@@ -53,7 +53,10 @@ function filterTree(data: RouteComponent[]) {
   return newTree
 }
 
-/** 过滤children长度为0的的目录，当目录下没有菜单时，会过滤此目录，目录没有赋予roles权限，当目录下只要有一个菜单有显示权限，那么此目录就会显示 */
+/**
+ * 过滤children长度为0的的目录，当目录下没有菜单时，会过滤此目录，目录没有赋予roles权限，当目录下只要有一个
+ * 菜单有显示权限，那么此目录就会显示
+ */
 function filterChildrenTree(data: RouteComponent[]) {
   const newTree = cloneDeep(data).filter((v: any) => v?.children?.length !== 0)
   newTree.forEach(
@@ -131,7 +134,7 @@ function addPathMatch() {
     router.addRoute({
       path: '/:pathMatch(.*)*',
       name: 'PageNotFound',
-      component: () => import('@/views/error/404.vue'),
+      component: (): any => import('@/views/error/404.vue'),
       meta: {
         title: '404',
         showLink: false
@@ -140,75 +143,71 @@ function addPathMatch() {
   }
 }
 
-/** 处理动态路由（后端返回的路由） */
+/**
+ * 处理动态路由（后端返回的路由）
+ */
 function handleAsyncRoutes(routeList: any) {
   if(routeList.length === 0) {
     usePermissionStoreHook().handleWholeMenus(routeList)
   } else {
-    formatFlatteningRoutes(addAsyncRoutes(routeList)).map(
-      (v: RouteRecordRaw) => {
-        // 防止重复添加路由
-        if(
-          router.options.routes[0].children.findIndex(
-            value => value.path === v.path
-          ) !== -1
-        ) {
-          return
-        } else {
-          // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
-          router.options.routes[0].children.push(v)
-          // 最终路由进行升序
-          ascending(router.options.routes[0].children)
-          if(!router.hasRoute(v?.name)) router.addRoute(v)
-          const flattenRouters: any = router
-            .getRoutes()
-            .find(n => n.path === '/')
-          // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
-          flattenRouters.children = router.options.routes[0].children
-          router.addRoute(flattenRouters)
-        }
+    formatFlatteningRoutes(addAsyncRoutes(routeList)).map((v: RouteRecordRaw) => {
+      // 防止重复添加路由
+      if(router.options.routes[0].children.findIndex(value => value.path === v.path) > -1) {
+        return
+      } else {
+        // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
+        router.options.routes[0].children.push(v)
+        // 最终路由进行升序
+        ascending(router.options.routes[0].children)
+        if(!router.hasRoute(v?.name)) router.addRoute(v)
+        const flattenRouters = router.getRoutes().find(n => n.path === '/')
+        // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
+        flattenRouters.children = router.options.routes[0].children
+        router.addRoute(flattenRouters)
       }
-    )
+    })
     usePermissionStoreHook().handleWholeMenus(routeList)
   }
   if(!useMultiTagsStoreHook().getMultiTagsCache) {
     useMultiTagsStoreHook().handleTags('equal', [
       ...routerArrays,
-      ...usePermissionStoreHook().flatteningRoutes.filter(
-        v => v?.meta?.fixedTag
-      )
+      ...usePermissionStoreHook().flatteningRoutes.filter(v => v?.meta?.fixedTag)
     ])
   }
   addPathMatch()
 }
 
-/** 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）*/
-function initRouter() {
+/**
+ * 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）
+ */
+async function initRouter() {
   if(getConfig()?.CachingAsyncRoutes) {
     // 开启动态路由缓存本地localStorage
     const key = 'async-routes'
     const asyncRouteList = storageLocal().getItem(key) as any
     if(asyncRouteList && asyncRouteList?.length > 0) {
-      return new Promise(resolve => {
-        handleAsyncRoutes(asyncRouteList)
-        resolve(router)
-      })
+      handleAsyncRoutes(asyncRouteList)
+      return router
     } else {
-      return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
-          handleAsyncRoutes(cloneDeep(data))
-          storageLocal().setItem(key, data)
-          resolve(router)
-        })
-      })
+      let routes = []
+      try {
+        routes = (await routeApis.asyncRoutes()).data ?? []
+      } catch(e) {
+        //ignore
+      }
+      handleAsyncRoutes(cloneDeep(routes))
+      storageLocal().setItem(key, routes)
+      return router
     }
   } else {
-    return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data))
-        resolve(router)
-      })
-    })
+    let routes = []
+    try {
+      routes = (await routeApis.asyncRoutes()).data ?? []
+    } catch(e) {
+      //ignore
+    }
+    handleAsyncRoutes(cloneDeep(routes))
+    return router
   }
 }
 
@@ -298,19 +297,31 @@ function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
   arrRoutes.forEach((v: RouteRecordRaw) => {
     // 将backstage属性加入meta，标识此路由为后端返回路由
     v.meta.backstage = true
-    // 父级的redirect属性取值：如果子级存在且父级的redirect属性不存在，默认取第一个子级的path；如果子级存在且父级的redirect属性存在，取存在的redirect属性，会覆盖默认值
-    if(v?.children && v.children.length && !v.redirect)
+    /*
+     * 父级的redirect属性取值：如果子级存在且父级的redirect属性不存在，默认取第一个子级的path；如果子级存在且父级的
+     * redirect属性存在，取存在的redirect属性，会覆盖默认值
+     */
+    if(v?.children && v.children.length && !v.redirect) {
       v.redirect = v.children[0].path
-    // 父级的name属性取值：如果子级存在且父级的name属性不存在，默认取第一个子级的name；如果子级存在且父级的name属性存在，取存在的name属性，会覆盖默认值（注意：测试中发现父级的name不能和子级name重复，如果重复会造成重定向无效（跳转404），所以这里给父级的name起名的时候后面会自动加上`Parent`，避免重复）
-    if(v?.children && v.children.length && !v.name)
+    }
+    /*
+     * 父级的name属性取值：如果子级存在且父级的name属性不存在，默认取第一个子级的name；如果子级存在且父级的name属性
+     * 存在，取存在的name属性，会覆盖默认值（注意：测试中发现父级的name不能和子级name重复，如果重复会造成重定向无效
+     * （跳转404），所以这里给父级的name起名的时候后面会自动加上`Parent`，避免重复）
+     */
+    if(v?.children && v.children.length && !v.name) {
       v.name = (v.children[0].name as string) + 'Parent'
+    }
     if(v.meta?.frameSrc) {
       v.component = IFrame
     } else {
-      // 对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，component组件路径会跟path保持一致）
-      const index = v?.component
-        ? modulesRoutesKeys.findIndex(ev => ev.includes(v.component as any))
-        : modulesRoutesKeys.findIndex(ev => ev.includes(v.path))
+      /*
+       * 对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，
+       * component组件路径会跟path保持一致）
+       */
+      const index = v?.component ?
+        modulesRoutesKeys.findIndex(ev => ev.includes(v.component as any)) :
+        modulesRoutesKeys.findIndex(ev => ev.includes(v.path))
       v.component = modulesRoutes[modulesRoutesKeys[index]]
     }
     if(v?.children && v.children.length) {
@@ -379,20 +390,7 @@ function getTopMenu(tag = false): menuType {
 }
 
 export {
-  hasAuth,
-  getAuths,
-  ascending,
-  filterTree,
-  initRouter,
-  getTopMenu,
-  addPathMatch,
-  isOneOfArray,
-  getHistoryMode,
-  addAsyncRoutes,
-  getParentPaths,
-  findRouteByPath,
-  handleAliveRoute,
-  formatTwoStageRoutes,
-  formatFlatteningRoutes,
-  filterNoPermissionTree
+  hasAuth, getAuths, ascending, filterTree, initRouter, getTopMenu, addPathMatch, isOneOfArray,
+  getHistoryMode, addAsyncRoutes, getParentPaths, findRouteByPath, handleAliveRoute, formatTwoStageRoutes,
+  formatFlatteningRoutes, filterNoPermissionTree
 }

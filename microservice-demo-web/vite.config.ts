@@ -4,9 +4,7 @@ import { getPluginsList } from './build/plugins'
 import { __APP_INFO__, alias, pathResolve, root, wrapperEnv } from './build/utils'
 
 export default ({ mode }: ConfigEnv): UserConfigExport => {
-  const { VITE_CDN, VITE_COMPRESSION, VITE_PUBLIC_PATH } = wrapperEnv(
-    loadEnv(mode, root)
-  )
+  const { VITE_CDN, VITE_COMPRESSION, VITE_PUBLIC_PATH } = wrapperEnv(loadEnv(mode, root))
   return {
     base: VITE_PUBLIC_PATH,
     root,

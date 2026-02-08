@@ -10,6 +10,10 @@ spring:
     time-zone: GMT+8
 
 honoka:
+  web:
+    return-stack-trace-on-error: true
+  webflux:
+    return-stack-trace-on-error: true
   redis:
     enabled: true
     key-prefix: microservice-demo

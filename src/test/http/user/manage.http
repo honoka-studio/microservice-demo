@@ -4,6 +4,7 @@ Content-Type: application/json
 {
   "username": "user1",
   "password": "password1",
+  "roles": ["admin"],
   "authorities": [
     "*:*:*"
   ]
@@ -28,13 +29,14 @@ Authorization: {{token_type}} {{access_token}}
 
 {
   "username": "user2",
+  "roles": ["user", "user2"],
   "authorities": [
-    "permission1:b2:*"
+    "permission1:b1:*"
   ]
 }
 
 ###
-POST {{url_prefix.user}}/user/query
+POST {{url_prefix.user}}/internal/user/query
 Content-Type: application/json
 
 {

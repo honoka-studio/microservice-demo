@@ -11,6 +11,8 @@ data class UserBasicInfo(
 
     var avatar: String? = null,
 
+    var roles: JSONArray? = null,
+
     var authorities: JSONArray? = null,
 
     var enabled: Boolean? = null,
@@ -27,6 +29,8 @@ data class UserRegisterRequest(
     var username: String? = null,
 
     var password: String? = null,
+
+    var roles: JSONArray? = null,
 
     var authorities: JSONArray? = null
 )
@@ -72,6 +76,8 @@ data class UserUpdateParams(
     var password: String? = null,
 
     var avatar: String? = null,
+
+    var roles: JSONArray? = null,
 
     var authorities: JSONArray? = null,
 

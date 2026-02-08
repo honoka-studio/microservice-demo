@@ -4,7 +4,7 @@ import cn.hutool.core.lang.UUID
 import de.honoka.sdk.spring.starter.redis.DefaultRedisTemplate
 import de.honoka.sdk.util.kotlin.concurrent.tryLock
 import de.honoka.sdk.util.kotlin.various.log
-import de.honoka.sdk.util.web.ApiResponse
+import de.honoka.sdk.util.kotlin.web.ApiResponse
 import org.redisson.api.RedissonClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

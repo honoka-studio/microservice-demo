@@ -5,4 +5,4 @@ import org.springframework.context.annotation.ComponentScan
 
 @EnableFeignClients(basePackages = ["de.honoka.demo.microservice.common"])
 @ComponentScan("de.honoka.demo.microservice.common")
-class CommonBaseConfig
+class MainBaseConfig
