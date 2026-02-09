@@ -9,6 +9,7 @@ IMPORTANT:
         - add 'preserveInstants=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true' to JDBC connection URL
           to ensure that time instants are stored accurately. See https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html
 */
+drop table if exists oauth2_registered_client;
 CREATE TABLE oauth2_registered_client
 (
     id                            varchar(100)                            NOT NULL,
@@ -36,3 +37,15 @@ VALUES ('d9a40ea2-b236-498d-9d65-08dd798ac5f0', 'microservice-demo-web', '2026-0
         'http://localhost:8080/auth/oauth2/callback,http://localhost:5173/api/auth/oauth2/callback', '', 'all',
         '{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":false,"settings.client.require-authorization-consent":false}',
         '{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":false,"settings.token.x509-certificate-bound-access-tokens":false,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",300.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000],"settings.token.device-code-time-to-live":["java.time.Duration",300.000000000]}');
+
+drop table if exists web_route_authority;
+create table web_route_authority
+(
+    id         bigint primary key,
+    route_name varchar(255) unique,
+    roles      varchar(255)
+);
+
+insert into web_route_authority
+values (1, 'PermissionPage', '["admin"]'),
+       (2, 'PermissionButton', '["admin", "user2"]');

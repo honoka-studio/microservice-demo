@@ -38,13 +38,10 @@ Object.keys(modules).forEach(key => {
 })
 
 /** 导出处理后的静态路由（三级及以上的路由全部拍成二级） */
-const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
-  formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
-)
+let constantRoutes: Array<RouteRecordRaw> = []
 
 /** 用于渲染菜单，保持原始层级 */
-export const constantMenus: Array<RouteConfigsTable> =
-  ascending(routes.flat(Infinity)).concat(...basicRoutes)
+export const constantMenus: Array<RouteConfigsTable> = []
 
 /** 不参与菜单的路由 */
 export const remainingPaths = Object.keys(basicRoutes).map(v => basicRoutes[v].path)
@@ -73,12 +70,26 @@ export const router: Router = createRouter({
 /** 记录已经加载的页面路径 */
 const loadedPaths = new Set<string>()
 
+function initRoutes(authorities: any) {
+  let routesCopy = cloneDeep(routes)
+  putRouteAuthorities(routesCopy, authorities)
+  constantRoutes = formatTwoStageRoutes(
+    formatFlatteningRoutes(buildHierarchyTree(ascending(routesCopy.flat(Infinity))))
+  )
+  constantMenus.splice(
+    0, constantMenus.length,
+    ...ascending(routesCopy.flat(Infinity)).concat(...basicRoutes)
+  )
+}
+
 /**
  * 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）
  */
 export async function initRouter() {
+  let routeAuthorities = (await routeApis.routeAuthorities()).data
+  initRoutes(routeAuthorities)
   let optionRoutes = router.options.routes as RouteRecordRaw[]
-  for(let route of cloneDeep(constantRoutes)) {
+  for(let route of constantRoutes) {
     router.addRoute(route)
     if(optionRoutes.findIndex(r => r.path === route.path) > -1) {
       if(route.path !== '/') continue
@@ -92,17 +103,32 @@ export async function initRouter() {
     const key = 'async-routes'
     const asyncRouteList = storageLocal().getItem(key) as any
     if(asyncRouteList && asyncRouteList?.length > 0) {
+      putRouteAuthorities(asyncRouteList, routeAuthorities)
       handleAsyncRoutes(asyncRouteList)
     } else {
       let routes = (await routeApis.asyncRoutes())?.data ?? []
-      handleAsyncRoutes(cloneDeep(routes))
       storageLocal().setItem(key, routes)
+      putRouteAuthorities(routes, routeAuthorities)
+      handleAsyncRoutes(routes)
     }
   } else {
     let routes = (await routeApis.asyncRoutes())?.data ?? []
-    handleAsyncRoutes(cloneDeep(routes))
+    putRouteAuthorities(routes, routeAuthorities)
+    handleAsyncRoutes(routes)
   }
   return router
+}
+
+function putRouteAuthorities(routes: any, authorities: any) {
+  for(let route of routes) {
+    let authority = authorities[route.name]
+    if(authority) {
+      route.meta.roles = authority.roles
+    }
+    if(route.children) {
+      putRouteAuthorities(route.children, authorities)
+    }
+  }
 }
 
 /** 重置已加载页面记录 */
@@ -154,10 +180,12 @@ router.beforeEach(async (to: ToRouteType, from, next) => {
     // 无权限跳转403页面
     if(to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: '/error/403' })
+      return
     }
     // 开启隐藏首页后在浏览器地址栏手动输入首页home路由则跳转到404页面
     if(import.meta.env.VITE_HIDE_HOME === 'true' && to.fullPath === '/home') {
       next({ path: '/error/404' })
+      return
     }
     if(from?.name) {
       // name为超链接
@@ -170,7 +198,12 @@ router.beforeEach(async (to: ToRouteType, from, next) => {
     } else {
       // 刷新
       if(usePermissionStoreHook().wholeMenus.length === 0 && to.path !== '/login') {
-        await initRouter()
+        try {
+          await initRouter()
+        } catch {
+          next()
+          return
+        }
         if(!useMultiTagsStoreHook().getMultiTagsCache) {
           const { path } = to
           const route = findRouteByPath(path, router.getRoutes())

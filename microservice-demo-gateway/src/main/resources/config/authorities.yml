@@ -1,6 +1,9 @@
 honoka.webflux.security:
   white-list:
-    - /auth/**
+    - /auth/login
+    - /auth/logout
+    - /auth/oauth2/**
+    - /auth/.well-known/**
     - /user/user/register
   authorities:
     - permission: permission1:a1:a

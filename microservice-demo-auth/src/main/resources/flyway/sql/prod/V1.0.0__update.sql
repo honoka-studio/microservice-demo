@@ -9,6 +9,7 @@ IMPORTANT:
         - add 'preserveInstants=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true' to JDBC connection URL
           to ensure that time instants are stored accurately. See https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html
 */
+drop table if exists oauth2_registered_client;
 CREATE TABLE oauth2_registered_client
 (
     id                            varchar(100)                            NOT NULL,
@@ -26,3 +27,15 @@ CREATE TABLE oauth2_registered_client
     token_settings                varchar(2000)                           NOT NULL,
     PRIMARY KEY (id)
 );
+
+drop table if exists web_route_authority;
+create table web_route_authority
+(
+    id         bigint primary key,
+    route_name varchar(255) unique,
+    roles      varchar(255)
+);
+
+insert into web_route_authority
+values (1, 'PermissionPage', '["admin"]'),
+       (2, 'PermissionButton', '["admin", "user2"]');

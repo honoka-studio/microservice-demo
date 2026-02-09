@@ -12,16 +12,15 @@ export default {
       name: 'PermissionPage',
       component: () => import('@/views/permission/page/index.vue'),
       meta: {
-        title: '页面权限',
-        roles: ['admin', 'common']
+        title: '页面权限'
       }
     },
     {
       path: '/permission/button',
+      name: 'PermissionButton',
       redirect: '/permission/button/router',
       meta: {
-        title: '按钮权限',
-        roles: ['admin', 'common']
+        title: '按钮权限'
       },
       children: [
         {

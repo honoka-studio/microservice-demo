@@ -60,19 +60,12 @@ const onLogin = async(formEl: FormInstance | undefined) => {
   })
 }
 
-const immediateDebounce: any = debounce(
-  formRef => onLogin(formRef),
-  1000,
-  true
-)
+const immediateDebounce: any = debounce(formRef => onLogin(formRef), 1000, true)
 
 useEventListener(document, 'keydown', ({ code }) => {
-  if(
-    ['Enter', 'NumpadEnter'].includes(code) &&
-    !disabled.value &&
-    !loading.value
-  )
+  if(['Enter', 'NumpadEnter'].includes(code) && !disabled.value && !loading.value) {
     immediateDebounce(ruleFormRef.value)
+  }
 })
 </script>
 
