@@ -1,7 +1,7 @@
 import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
 import {
   ascending,
-  type cacheType,
+  type Cache,
   constantMenus,
   filterNoPermissionTree,
   filterTree,
@@ -46,7 +46,7 @@ export const usePermissionStore = defineStore('pure-permission', {
         cacheLength--
       }
     },
-    cacheOperate({ mode, name }: cacheType) {
+    cacheOperate({ mode, name }: Cache) {
       const delIndex = this.cachePageList.findIndex(v => v === name)
       switch(mode) {
         case 'refresh':

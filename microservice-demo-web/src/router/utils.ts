@@ -1,7 +1,7 @@
 // 动态路由
-import routeApis from '@/api/route'
-import { getConfig } from '@/config'
-import { type menuType, routerArrays } from '@/layout/types'
+import { type Menu, routerArrays } from '@/layout/types'
+import { router } from '@/router'
+import { pathMatchRoute } from '@/router/default-routes'
 import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
 import { usePermissionStoreHook } from '@/store/modules/permission'
 import { type DataInfo, userKey } from '@/utils/auth'
@@ -16,9 +16,9 @@ import {
   type RouteRecordRaw,
   type RouterHistory
 } from 'vue-router'
-import { router } from './index'
 
 const IFrame = (): any => import('@/layout/frame.vue')
+
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes: any = import.meta.glob('/src/views/**/*.{vue,tsx}')
 
@@ -109,15 +109,12 @@ function getParentPaths(value: string, routes: RouteRecordRaw[], key = 'path') {
 
 /** 查找对应 `path` 的路由信息 */
 function findRouteByPath(path: string, routes: RouteRecordRaw[]) {
-  let res = routes.find((item: { path: string }) => item.path == path)
+  let res = routes.find(item => item.path === path)
   if(res) {
     return isProxy(res) ? toRaw(res) : res
   } else {
     for(let i = 0; i < routes.length; i++) {
-      if(
-        routes[i].children instanceof Array &&
-        routes[i].children.length > 0
-      ) {
+      if(routes[i].children instanceof Array && routes[i].children.length > 0) {
         res = findRouteByPath(path, routes[i].children)
         if(res) {
           return isProxy(res) ? toRaw(res) : res
@@ -130,17 +127,9 @@ function findRouteByPath(path: string, routes: RouteRecordRaw[]) {
 
 /** 动态路由注册完成后，再添加全屏404（页面不存在）页面，避免刷新动态路由页面时误跳转到404页面 */
 function addPathMatch() {
-  if(!router.hasRoute('pathMatch')) {
-    router.addRoute({
-      path: '/:pathMatch(.*)*',
-      name: 'PageNotFound',
-      component: (): any => import('@/views/error/404.vue'),
-      meta: {
-        title: '404',
-        showLink: false
-      }
-    })
-  }
+  router.removeRoute(pathMatchRoute.name)
+  if(router.hasRoute('PathMatch')) return
+  router.addRoute(pathMatchRoute as any)
 }
 
 /**
@@ -151,20 +140,18 @@ function handleAsyncRoutes(routeList: any) {
     usePermissionStoreHook().handleWholeMenus(routeList)
   } else {
     formatFlatteningRoutes(addAsyncRoutes(routeList)).map((v: RouteRecordRaw) => {
+      let optionRoute = router.options.routes[0]
       // 防止重复添加路由
-      if(router.options.routes[0].children.findIndex(value => value.path === v.path) > -1) {
-        return
-      } else {
-        // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
-        router.options.routes[0].children.push(v)
-        // 最终路由进行升序
-        ascending(router.options.routes[0].children)
-        if(!router.hasRoute(v?.name)) router.addRoute(v)
-        const flattenRouters = router.getRoutes().find(n => n.path === '/')
-        // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
-        flattenRouters.children = router.options.routes[0].children
-        router.addRoute(flattenRouters)
-      }
+      if(optionRoute.children.findIndex(value => value.path === v.path) > -1) return
+      // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
+      optionRoute.children.push(v)
+      // 最终路由进行升序
+      ascending(optionRoute.children)
+      if(!router.hasRoute(v?.name)) router.addRoute(v)
+      const flattenRouters = router.getRoutes().find(n => n.path === '/')
+      // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
+      flattenRouters.children = optionRoute.children
+      router.addRoute(flattenRouters)
     })
     usePermissionStoreHook().handleWholeMenus(routeList)
   }
@@ -175,40 +162,6 @@ function handleAsyncRoutes(routeList: any) {
     ])
   }
   addPathMatch()
-}
-
-/**
- * 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）
- */
-async function initRouter() {
-  if(getConfig()?.CachingAsyncRoutes) {
-    // 开启动态路由缓存本地localStorage
-    const key = 'async-routes'
-    const asyncRouteList = storageLocal().getItem(key) as any
-    if(asyncRouteList && asyncRouteList?.length > 0) {
-      handleAsyncRoutes(asyncRouteList)
-      return router
-    } else {
-      let routes = []
-      try {
-        routes = (await routeApis.asyncRoutes()).data ?? []
-      } catch(e) {
-        //ignore
-      }
-      handleAsyncRoutes(cloneDeep(routes))
-      storageLocal().setItem(key, routes)
-      return router
-    }
-  } else {
-    let routes = []
-    try {
-      routes = (await routeApis.asyncRoutes()).data ?? []
-    } catch(e) {
-      //ignore
-    }
-    handleAsyncRoutes(cloneDeep(routes))
-    return router
-  }
 }
 
 /**
@@ -381,7 +334,7 @@ function handleTopMenu(route: any) {
 }
 
 /** 获取所有菜单中的第一个菜单（顶级菜单）*/
-function getTopMenu(tag = false): menuType {
+function getTopMenu(tag = false): Menu {
   const topMenu = handleTopMenu(
     usePermissionStoreHook().wholeMenus[0]?.children[0]
   )
@@ -390,7 +343,7 @@ function getTopMenu(tag = false): menuType {
 }
 
 export {
-  hasAuth, getAuths, ascending, filterTree, initRouter, getTopMenu, addPathMatch, isOneOfArray,
-  getHistoryMode, addAsyncRoutes, getParentPaths, findRouteByPath, handleAliveRoute, formatTwoStageRoutes,
-  formatFlatteningRoutes, filterNoPermissionTree
+  hasAuth, getAuths, ascending, filterTree, getTopMenu, addPathMatch, isOneOfArray, getHistoryMode,
+  addAsyncRoutes, getParentPaths, findRouteByPath, handleAliveRoute, formatTwoStageRoutes,
+  handleAsyncRoutes, formatFlatteningRoutes, filterNoPermissionTree
 }

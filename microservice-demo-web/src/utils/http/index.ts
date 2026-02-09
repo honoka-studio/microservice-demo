@@ -48,7 +48,7 @@ class PureHttp {
         if(token) {
           const now = new Date().getTime()
           const expired = parseInt(token.expires) - now <= 0
-          if(expired) {
+          if(expired && !config.noRefreshToken) {
             //noinspection ES6MissingAwait
             this.refreshTokenAndDoRequest(token.refreshToken)
             return this.retryOriginalRequest(config)
@@ -70,10 +70,10 @@ class PureHttp {
   private httpInterceptorsResponse() {
     this.axiosInstance.interceptors.response.use(
       (response: PureHttpResponse) => {
-        const config = response.config
+        const request = response.config
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
-        if(typeof config.beforeResponseCallback === 'function') {
-          config.beforeResponseCallback(response)
+        if(typeof request.beforeResponseCallback === 'function') {
+          request.beforeResponseCallback(response)
           return null
         }
         if(this.initConfig.beforeResponseCallback) {
@@ -83,6 +83,10 @@ class PureHttp {
         return response.data
       },
       async (error: PureHttpError) => {
+        let request = error.config
+        if(request.ignoreErrors) {
+          return Promise.resolve()
+        }
         let response = error.response
         let newResponse = await this.redoIf401(response)
         if(newResponse) {
@@ -92,9 +96,8 @@ class PureHttp {
         if(apiError) {
           return Promise.reject(apiError)
         }
-        const path = error.config.url
-        console.error(`Request ${path} error: `, error)
-        message(error.message ?? `请求失败：${path}`, { type: 'error' })
+        console.error(`Request ${request.url} error: `, error)
+        message(error.message ?? `请求失败：${request.url}`, { type: 'error' })
         error.isCancelRequest = Axios.isCancel(error)
         // 所有的响应异常 区分来源为取消请求/非取消请求
         return Promise.reject(error)
@@ -125,6 +128,7 @@ class PureHttp {
           config.headers['Authorization'] = formatToken(token)
           resolve(config)
         } else {
+          console.error(`Rejected request: ${config.url}`, config)
           reject()
         }
       })
@@ -151,7 +155,7 @@ class PureHttp {
     const failed = response.status !== 200 || body.success === false
     if(!failed) return null
     const path = response.config.url
-    let error = new Error(`API ${path} error: ` + body.msg)
+    let error = new Error(`API ${path} error: ${body.msg}`)
     if(response.config.showMsgOnError) {
       console.error(error)
       message(body.msg ?? `API调用失败：${path}`, { type: 'error' })
@@ -169,14 +173,11 @@ class PureHttp {
 
     // 单独处理自定义请求/响应回调
     return new Promise((resolve, reject) => {
-      this.axiosInstance
-        .request(realConfig)
-        .then((response: undefined) => {
-          resolve(response)
-        })
-        .catch(error => {
-          reject(error)
-        })
+      this.axiosInstance.request(realConfig).then((response: any) => {
+        resolve(response)
+      }).catch(error => {
+        reject(error)
+      })
     })
   }
 

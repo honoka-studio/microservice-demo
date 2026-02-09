@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { initRouter } from '@/router/utils'
+import { initRouter } from '@/router'
 import { usePermissionStoreHook } from '@/store/modules/permission'
 import { useUserStoreHook } from '@/store/modules/user'
 import { storageLocal } from '@pureadmin/utils'

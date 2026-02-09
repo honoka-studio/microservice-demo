@@ -29,6 +29,7 @@ export interface DataInfo<T> {
 }
 
 export const userKey = 'user-info'
+
 /**
  * 通过`multiple-tabs`是否在`cookie`中，判断用户是否已经登录系统，
  * 从而支持多标签页打开已经登录的系统后无需再登录。
@@ -55,13 +56,7 @@ export function setToken(data: DataInfo<Date>) {
   // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
   expires = new Date(data.expires).getTime()
 
-  Cookies.set(
-    multipleTabsKey,
-    'true',
-    isRemembered ? {
-      expires: loginDay
-    } : {}
-  )
+  Cookies.set(multipleTabsKey, 'true', isRemembered ? { expires: loginDay } : {})
 
   function setUserKey({ avatar, username, nickname, roles, permissions }) {
     useUserStoreHook().SET_AVATAR(avatar)

@@ -1,11 +1,11 @@
 import userApis from '@/api/user'
 import { type DataInfo, removeToken, setToken, userKey } from '@/utils/auth'
 import { defineStore } from 'pinia'
-import { resetRouter, router, routerArrays, storageLocal, store, type userType } from '../utils'
+import { resetRouter, router, routerArrays, storageLocal, store, type User } from '../utils'
 import { useMultiTagsStoreHook } from './multiTags'
 
 export const useUserStore = defineStore('pure-user', {
-  state: (): userType => ({
+  state: (): User => ({
     // 头像
     avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? '',
     // 用户名
@@ -62,12 +62,8 @@ export const useUserStore = defineStore('pure-user', {
     },
     /** 前端登出 */
     async logout() {
-      try {
-        await userApis.logout()
-        await userApis.revokeRefreshToken()
-      } catch(e) {
-        //ignore
-      }
+      await userApis.logout()
+      await userApis.revokeRefreshToken()
       this.username = ''
       this.roles = []
       this.permissions = []

@@ -13,10 +13,9 @@ import { computed, type CSSProperties } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ExitFullscreen from '~icons/ri/fullscreen-exit-fill'
 import Fullscreen from '~icons/ri/fullscreen-fill'
-import type { routeMetaType } from '../types'
+import type { RouteMeta } from '../types'
 
-const errorInfo =
-  'The current routing configuration is incorrect, please check the configuration'
+const errorInfo = 'The current routing configuration is incorrect, please check the configuration'
 
 export function useNav() {
   const route = useRoute()
@@ -64,6 +63,7 @@ export function useNav() {
   })
 
   const { $storage, $config } = useGlobal<GlobalPropertiesApi>()
+
   const layout = computed(() => {
     return $storage?.layout?.layout
   })
@@ -73,15 +73,15 @@ export function useNav() {
   })
 
   /** 动态title */
-  function changeTitle(meta: routeMetaType) {
+  function changeTitle(meta: RouteMeta) {
     const Title = getConfig().Title
     if(Title) document.title = `${meta.title} - ${Title}`
     else document.title = meta.title
   }
 
   /** 退出登录 */
-  function logout() {
-    useUserStoreHook().logout()
+  async function logout() {
+    await useUserStoreHook().logout()
   }
 
   function backTopMenu() {
@@ -127,31 +127,8 @@ export function useNav() {
   }
 
   return {
-    route,
-    title,
-    device,
-    layout,
-    logout,
-    routers,
-    $storage,
-    isFullscreen,
-    Fullscreen,
-    ExitFullscreen,
-    toggle,
-    backTopMenu,
-    onPanel,
-    getDivStyle,
-    changeTitle,
-    toggleSideBar,
-    menuSelect,
-    handleResize,
-    resolvePath,
-    getLogo,
-    isCollapse,
-    pureApp,
-    username,
-    userAvatar,
-    avatarsStyle,
-    tooltipEffect
+    route, title, device, layout, logout, routers, $storage, isFullscreen, Fullscreen, ExitFullscreen,
+    toggle, backTopMenu, onPanel, getDivStyle, toggleSideBar, menuSelect, handleResize, resolvePath,
+    getLogo, isCollapse, pureApp, username, userAvatar, avatarsStyle, tooltipEffect
   }
 }

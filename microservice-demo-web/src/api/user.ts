@@ -37,7 +37,10 @@ const userApis = {
       'refresh_token': refreshToken
     }).toString()
   }),
-  logout: () => http.get('/auth/logout'),
+  logout: () => http.get('/auth/logout', {
+    ignoreErrors: true,
+    noRefreshToken: true
+  }),
   revokeRefreshToken: () => http.post('/auth/oauth2/revoke', {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,7 +49,8 @@ const userApis = {
     data: new URLSearchParams({
       'token_type_hint': 'refresh_token',
       'token': getToken().refreshToken
-    }).toString()
+    }).toString(),
+    ignoreErrors: true
   }),
   self(token?: string) {
     const headers = {}

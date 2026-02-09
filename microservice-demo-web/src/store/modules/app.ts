@@ -1,8 +1,8 @@
-import {defineStore} from "pinia";
-import {type appType, deviceDetection, getConfig, responsiveStorageNameSpace, storageLocal, store} from "../utils";
+import { defineStore } from 'pinia'
+import { type App, deviceDetection, getConfig, responsiveStorageNameSpace, storageLocal, store } from '../utils'
 
 export const useAppStore = defineStore("pure-app", {
-  state: (): appType => ({
+  state: (): App => ({
     sidebar: {
       opened:
         storageLocal().getItem<StorageConfigs>(

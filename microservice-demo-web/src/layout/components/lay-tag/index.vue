@@ -16,7 +16,7 @@ import ArrowRightSLine from '~icons/ri/arrow-right-s-line'
 import ExitFullscreen from '~icons/ri/fullscreen-exit-fill'
 import Fullscreen from '~icons/ri/fullscreen-fill'
 import { useTags } from '../../hooks/useTag'
-import { RouteConfigs } from '../../types'
+import { RouteConfig } from '../../types'
 import TagChrome from './components/TagChrome.vue'
 
 const {
@@ -264,7 +264,7 @@ function deleteMenu(item, tag?: string) {
   handleAliveRoute(route as ToRouteType)
 }
 
-function onClickDrop(key, item, selectRoute?: RouteConfigs) {
+function onClickDrop(key, item, selectRoute?: RouteConfig) {
   if(item && item.disabled) return
 
   let selectTagRoute

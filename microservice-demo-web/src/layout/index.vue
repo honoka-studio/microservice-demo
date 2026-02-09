@@ -16,7 +16,7 @@ import NavVertical from './components/lay-sidebar/NavVertical.vue'
 
 import LayTag from './components/lay-tag/index.vue'
 import { useLayout } from './hooks/useLayout'
-import { setType } from './types'
+import { LayoutSet } from './types'
 
 const appWrapperRef = ref()
 const { isDark } = useDark()
@@ -25,7 +25,7 @@ const isMobile = deviceDetection()
 const pureSetting = useSettingStoreHook()
 const { $storage } = useGlobal<GlobalPropertiesApi>()
 
-const set: setType = reactive({
+const set: LayoutSet = reactive({
   sidebar: computed(() => {
     return useAppStoreHook().sidebar
   }),

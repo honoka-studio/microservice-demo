@@ -6,6 +6,8 @@ export type RequestMethods = Extract<
 
 export interface PureHttpError extends AxiosError {
 
+  config: PureHttpRequestConfig
+
   isCancelRequest?: boolean
 }
 
@@ -22,5 +24,9 @@ export interface PureHttpRequestConfig extends AxiosRequestConfig {
 
   showMsgOnError?: boolean
 
+  ignoreErrors?: boolean
+
   ignore401?: boolean
+
+  noRefreshToken?: boolean
 }

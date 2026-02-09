@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import {getConfig} from "@/config";
-import {posix} from "path-browserify";
-import {menuType} from "@/layout/types";
-import {ReText} from "@/components/ReText";
-import {useNav} from "@/layout/hooks/useNav";
-import SidebarLinkItem from "./SidebarLinkItem.vue";
-import SidebarExtraIcon from "./SidebarExtraIcon.vue";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {computed, type CSSProperties, type PropType, ref, toRaw, useAttrs} from "vue";
+import { useRenderIcon } from '@/components/ReIcon/src/hooks'
+import { ReText } from '@/components/ReText'
+import { getConfig } from '@/config'
+import { useNav } from '@/layout/hooks/useNav'
+import { Menu } from '@/layout/types'
+import { posix } from 'path-browserify'
+import { computed, type CSSProperties, type PropType, ref, toRaw, useAttrs } from 'vue'
+import EpArrowDown from '~icons/ep/arrow-down-bold'
+import ArrowLeft from '~icons/ep/arrow-left-bold'
+import ArrowRight from '~icons/ep/arrow-right-bold'
 
-import ArrowUp from "~icons/ep/arrow-up-bold";
-import EpArrowDown from "~icons/ep/arrow-down-bold";
-import ArrowLeft from "~icons/ep/arrow-left-bold";
-import ArrowRight from "~icons/ep/arrow-right-bold";
+import ArrowUp from '~icons/ep/arrow-up-bold'
+import SidebarExtraIcon from './SidebarExtraIcon.vue'
+import SidebarLinkItem from './SidebarLinkItem.vue'
 
 const attrs = useAttrs();
 const { layout, isCollapse, tooltipEffect, getDivStyle } = useNav();
 
 const props = defineProps({
   item: {
-    type: Object as PropType<menuType>
+    type: Object as PropType<Menu>
   },
   isNest: {
     type: Boolean,
@@ -78,9 +78,9 @@ const expandCloseIcon = computed(() => {
   };
 });
 
-const onlyOneChild: menuType = ref(null);
+const onlyOneChild: Menu = ref(null);
 
-function hasOneShowingChild(children: menuType[] = [], parent: menuType) {
+function hasOneShowingChild(children: Menu[] = [], parent: Menu) {
   const showingChildren = children.filter((item: any) => {
     onlyOneChild.value = item;
     return true;

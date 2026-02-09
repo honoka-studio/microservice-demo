@@ -1,13 +1,6 @@
+import routeApis from '@/api/route'
 import { getConfig } from '@/config'
-import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
-import { usePermissionStoreHook } from '@/store/modules/permission'
-import { type DataInfo, multipleTabsKey, removeToken, userKey } from '@/utils/auth'
-import NProgress from '@/utils/progress'
-import { buildHierarchyTree } from '@/utils/tree'
-import { cloneDeep, isAllEmpty, isUrl, openLink, storageLocal } from '@pureadmin/utils'
-import Cookies from 'js-cookie'
-import { createRouter, type Router, type RouteRecordRaw } from 'vue-router'
-import basicRoutes from './basic-routes'
+import { basicRoutes, indexRoute, pathMatchRoute } from '@/router/default-routes'
 import {
   ascending,
   findRouteByPath,
@@ -16,9 +9,17 @@ import {
   getHistoryMode,
   getTopMenu,
   handleAliveRoute,
-  initRouter,
+  handleAsyncRoutes,
   isOneOfArray
-} from './utils'
+} from '@/router/utils'
+import { useMultiTagsStoreHook } from '@/store/modules/multiTags'
+import { usePermissionStoreHook } from '@/store/modules/permission'
+import { getToken, multipleTabsKey, removeToken } from '@/utils/auth'
+import NProgress from '@/utils/progress'
+import { buildHierarchyTree } from '@/utils/tree'
+import { cloneDeep, isAllEmpty, isUrl, openLink, storageLocal } from '@pureadmin/utils'
+import Cookies from 'js-cookie'
+import { createRouter, type Router, type RouteRecordRaw } from 'vue-router'
 
 /**
  * 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中
@@ -30,19 +31,16 @@ import {
 const modules: Record<string, any> = import.meta.glob('./modules/**/*.ts', { eager: true })
 
 /** 原始静态路由（未做任何处理） */
-const routes = []
+const routes = [indexRoute]
 
 Object.keys(modules).forEach(key => {
   routes.push(modules[key].default)
 })
 
 /** 导出处理后的静态路由（三级及以上的路由全部拍成二级） */
-export const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
+const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
   formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
 )
-
-/** 初始的静态路由，用于退出登录时重置路由 */
-const initConstantRoutes: Array<RouteRecordRaw> = cloneDeep(constantRoutes)
 
 /** 用于渲染菜单，保持原始层级 */
 export const constantMenus: Array<RouteConfigsTable> =
@@ -51,12 +49,14 @@ export const constantMenus: Array<RouteConfigsTable> =
 /** 不参与菜单的路由 */
 export const remainingPaths = Object.keys(basicRoutes).map(v => basicRoutes[v].path)
 
+const defaultRoutes = [indexRoute, ...basicRoutes, pathMatchRoute]
+
 /** 创建路由实例 */
 export const router: Router = createRouter({
   history: getHistoryMode(import.meta.env.VITE_ROUTER_HISTORY),
-  routes: constantRoutes.concat(...(basicRoutes as any)),
+  routes: cloneDeep(defaultRoutes),
   strict: true,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_, from, savedPosition) {
     return new Promise(resolve => {
       if(savedPosition) {
         return savedPosition
@@ -73,6 +73,38 @@ export const router: Router = createRouter({
 /** 记录已经加载的页面路径 */
 const loadedPaths = new Set<string>()
 
+/**
+ * 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）
+ */
+export async function initRouter() {
+  let optionRoutes = router.options.routes as RouteRecordRaw[]
+  for(let route of cloneDeep(constantRoutes)) {
+    router.addRoute(route)
+    if(optionRoutes.findIndex(r => r.path === route.path) > -1) {
+      if(route.path !== '/') continue
+      optionRoutes[0] = route
+    } else {
+      optionRoutes.push(route)
+    }
+  }
+  if(getConfig()?.CachingAsyncRoutes) {
+    // 开启动态路由缓存本地localStorage
+    const key = 'async-routes'
+    const asyncRouteList = storageLocal().getItem(key) as any
+    if(asyncRouteList && asyncRouteList?.length > 0) {
+      handleAsyncRoutes(asyncRouteList)
+    } else {
+      let routes = (await routeApis.asyncRoutes())?.data ?? []
+      handleAsyncRoutes(cloneDeep(routes))
+      storageLocal().setItem(key, routes)
+    }
+  } else {
+    let routes = (await routeApis.asyncRoutes())?.data ?? []
+    handleAsyncRoutes(cloneDeep(routes))
+  }
+  return router
+}
+
 /** 重置已加载页面记录 */
 export function resetLoadedPaths() {
   loadedPaths.clear()
@@ -81,20 +113,15 @@ export function resetLoadedPaths() {
 /** 重置路由 */
 export function resetRouter() {
   router.clearRoutes()
-  for(const route of initConstantRoutes.concat(...(basicRoutes as any))) {
-    router.addRoute(route)
+  router.options.routes = cloneDeep(defaultRoutes)
+  for(const route of router.options.routes) {
+    router.addRoute(route as any)
   }
-  router.options.routes = formatTwoStageRoutes(
-    formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
-  )
   usePermissionStoreHook().clearAllCachePage()
   resetLoadedPaths()
 }
 
-/** 路由白名单 */
-const whiteList = ['/login']
-
-router.beforeEach((to: ToRouteType, _from, next) => {
+router.beforeEach(async (to: ToRouteType, from, next) => {
   to.meta.loaded = loadedPaths.has(to.path)
 
   if(!to.meta.loaded) {
@@ -104,11 +131,11 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   if(to.meta?.keepAlive) {
     handleAliveRoute(to, 'add')
     // 页面整体刷新和点击标签页刷新
-    if(_from.name === undefined || _from.name === 'Redirect') {
+    if(from.name === undefined || from.name === 'Redirect') {
       handleAliveRoute(to)
     }
   }
-  const userInfo = storageLocal().getItem<DataInfo<number>>(userKey)
+  const userInfo = getToken()
   const externalLink = isUrl(to?.name as string)
   if(!externalLink) {
     to.matched.some(item => {
@@ -119,12 +146,11 @@ router.beforeEach((to: ToRouteType, _from, next) => {
     })
   }
 
-  //如果已经登录并存在登录信息后不能跳转到路由白名单，而是继续保持在当前页面
-  function toCorrectRoute() {
-    whiteList.includes(to.fullPath) ? next(_from.fullPath) : next()
-  }
-
   if(Cookies.get(multipleTabsKey) && userInfo) {
+    if(to.path === '/login') {
+      next({ path: '/' })
+      return
+    }
     // 无权限跳转403页面
     if(to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: '/error/403' })
@@ -133,66 +159,42 @@ router.beforeEach((to: ToRouteType, _from, next) => {
     if(import.meta.env.VITE_HIDE_HOME === 'true' && to.fullPath === '/home') {
       next({ path: '/error/404' })
     }
-    if(_from?.name) {
+    if(from?.name) {
       // name为超链接
       if(externalLink) {
         openLink(to?.name as string)
         NProgress.done()
       } else {
-        toCorrectRoute()
+        next()
       }
     } else {
       // 刷新
-      if(
-        usePermissionStoreHook().wholeMenus.length === 0 &&
-        to.path !== '/login'
-      ) {
-        initRouter().then((router: Router) => {
-          if(!useMultiTagsStoreHook().getMultiTagsCache) {
-            const { path } = to
-            const route = findRouteByPath(
-              path,
-              router.options.routes[0].children
-            )
-            getTopMenu(true)
-            // query、params模式路由传参数的标签页不在此处处理
-            if(route && route.meta?.title) {
-              if(isAllEmpty(route.parentId) && route.meta?.backstage) {
-                // 此处为动态顶级路由（目录）
-                const { path, name, meta } = route.children[0]
-                useMultiTagsStoreHook().handleTags('push', {
-                  path,
-                  name,
-                  meta
-                })
-              } else {
-                const { path, name, meta } = route
-                useMultiTagsStoreHook().handleTags('push', {
-                  path,
-                  name,
-                  meta
-                })
-              }
+      if(usePermissionStoreHook().wholeMenus.length === 0 && to.path !== '/login') {
+        await initRouter()
+        if(!useMultiTagsStoreHook().getMultiTagsCache) {
+          const { path } = to
+          const route = findRouteByPath(path, router.getRoutes())
+          getTopMenu(true)
+          // query、params模式路由传参数的标签页不在此处处理
+          if(route && route.meta?.title) {
+            if(isAllEmpty(route.parentId) && route.meta?.backstage) {
+              // 此处为动态顶级路由（目录）
+              const { path, name, meta } = route.children[0]
+              useMultiTagsStoreHook().handleTags('push', { path, name, meta })
+            } else {
+              const { path, name, meta } = route
+              useMultiTagsStoreHook().handleTags('push', { path, name, meta })
             }
           }
-          /*
-           * 确保动态路由完全加入路由列表并且不影响静态路由（注意：动态路由刷新时router.beforeEach可能会触发两次，
-           * 第一次触发动态路由还未完全添加，第二次动态路由才完全添加到路由列表，如果需要在router.beforeEach做一些
-           * 判断可以在to.name存在的条件下去判断，这样就只会触发一次）
-           */
-          if(isAllEmpty(to.name)) router.push(to.fullPath)
-        })
+        }
+        await router.push(to.fullPath)
       }
-      toCorrectRoute()
+      next()
     }
   } else {
     if(to.path !== '/login') {
-      if(whiteList.indexOf(to.path) !== -1) {
-        next()
-      } else {
-        removeToken()
-        next({ path: '/login' })
-      }
+      removeToken()
+      next({ path: '/login' })
     } else {
       next()
     }
